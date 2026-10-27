@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { motion } from "framer-motion";
 import { ArrowDown, MapPin } from "lucide-react";
 import Image from "next/image";
@@ -6,18 +6,18 @@ import { BUSINESS } from "@/lib/config";
 import { HERO_PHOTO } from "@/lib/gallery";
 import { Wave } from "./Wave";
 const ease = [0.22, 1, 0.36, 1] as const;
-const titleWords = ["Seu", "momento", "mais", "doce", "começa", "aqui."];
+const titleWords = ["Seu", "momento", "mais", "doce", "comeÃ§a", "aqui."];
 export function Hero() {
   return (
     <section id="inicio" className="relative isolate overflow-hidden pt-24 sm:pt-28">
       {/* brilho rosa de fundo */}
       <div
         aria-hidden="true"
-        className="glow absolute -right-24 top-10 -z-10 h-[28rem] w-[28rem] rounded-full bg-magenta/30 blur-[120px]"
+        className="glow absolute -right-24 top-10 -z-10 h-[28rem] w-[28rem] rounded-full bg-magenta/30 blur-3xl"
       />
       <div
         aria-hidden="true"
-        className="absolute -left-32 bottom-0 -z-10 h-80 w-80 rounded-full bg-neon/10 blur-[110px]"
+        className="absolute -left-32 bottom-0 -z-10 h-80 w-80 rounded-full bg-neon/10 blur-3xl"
       />
       <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 pb-24 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:gap-12 lg:pb-32">
         <div>
@@ -28,7 +28,7 @@ export function Hero() {
             className="eyebrow inline-flex items-center gap-2"
           >
             <MapPin className="h-4 w-4" aria-hidden="true" />
-            {BUSINESS.name} · {BUSINESS.city}, {BUSINESS.state}
+            {BUSINESS.name} Â· {BUSINESS.city}, {BUSINESS.state}
           </motion.p>
           <h1 className="mt-5 font-display text-[2.9rem] font-semibold leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl">
             {titleWords.map((word, i) => (
@@ -50,8 +50,8 @@ export function Hero() {
             transition={{ duration: 0.8, delay: 0.85, ease }}
             className="mt-6 max-w-xl text-lg leading-relaxed text-cream-dim"
           >
-            Descubra seus sabores favoritos em milk-shakes cremosos, sundaes irresistíveis e muito
-            mais. Escolha, personalize e peça pelo WhatsApp.
+            Descubra seus sabores favoritos em milk-shakes cremosos, sundaes irresistÃ­veis e muito
+            mais. Escolha, personalize e peÃ§a pelo WhatsApp.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -60,7 +60,7 @@ export function Hero() {
             className="mt-8 flex flex-col gap-3 sm:flex-row"
           >
             <a href="#cardapio" className="btn btn-ghost">
-              Explorar cardápio
+              Explorar cardÃ¡pio
               <ArrowDown className="h-4 w-4" aria-hidden="true" />
             </a>
             <a href="#cardapio" className="btn btn-primary">
@@ -100,3 +100,4 @@ export function Hero() {
     </section>
   );
 }
+

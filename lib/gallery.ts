@@ -11,25 +11,25 @@ export const PRODUCT_PHOTOS: [PhotoSlot, PhotoSlot, PhotoSlot, PhotoSlot] = [
   {
     id: "produto-01",
     label: "Produto 01",
-    src: "/images/produto-01.png",
+    src: "/images/produto-01.webp",
     alt: "Copo da Gelateria Mix com sobremesa de chocolate, em frente ao letreiro neon da loja",
   },
   {
     id: "produto-02",
     label: "Produto 02",
-    src: "/images/produto-02.png",
+    src: "/images/produto-02.webp",
     alt: "Copo da Gelateria Mix com camadas roxas e cobertura de morangos frescos",
   },
   {
     id: "produto-03",
     label: "Produto 03",
-    src: "/images/produto-03.png",
+    src: "/images/produto-03.webp",
     alt: "Sorvete de massa misto servido em casquinha na mÃ¡quina da Gelateria Mix",
   },
   {
     id: "produto-04",
     label: "Produto 04",
-    src: "/images/produto-04.png",
+    src: "/images/produto-04.webp",
     alt: "Copo da Gelateria Mix com bebida gelada amarela e topo cremoso",
   },
 ];
@@ -49,5 +49,6 @@ export const STORE_PHOTOS: [PhotoSlot, PhotoSlot] = [
 ];
 /** Foto usada no Hero (reaproveita uma das fotos reais de produto, sem ocupar slot extra). */
 export const HERO_PHOTO = PRODUCT_PHOTOS[0];
+
 
 

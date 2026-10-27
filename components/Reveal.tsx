@@ -1,21 +1,24 @@
-"use client";
-import { motion } from "framer-motion";
+﻿"use client";
+import { motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
+
 interface RevealProps {
   children: ReactNode;
   delay?: number;
   y?: number;
   className?: string;
 }
-/** Revela o conteúdo suavemente quando entra na tela (uma única vez). */
+
 export function Reveal({ children, delay = 0, y = 24, className }: RevealProps) {
+  const reduceMotion = useReducedMotion();
+
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y }}
+      initial={reduceMotion ? false : { opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: reduceMotion ? 0 : 0.45, delay: reduceMotion ? 0 : delay }}
     >
       {children}
     </motion.div>
