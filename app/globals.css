@@ -1,0 +1,155 @@
+@import "tailwindcss";
+@theme {
+  --font-display: "Fraunces Variable", Georgia, "Times New Roman", serif;
+  --font-sans: "Manrope Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --color-ink: #0a0709;
+  --color-ink-2: #130c10;
+  --color-ink-3: #1d1218;
+  --color-line: #2c1d26;
+  --color-magenta: #d9007a;
+  --color-magenta-600: #b80067;
+  --color-neon: #ff4fb8;
+  --color-cream: #f7e9d6;
+  --color-cream-dim: #cdb9a4;
+}
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--color-ink);
+    color: #fff;
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background: var(--color-magenta);
+    color: #fff;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-neon);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  button,
+  a,
+  [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+@layer components {
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 3rem;
+    padding: 0 1.4rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    transition:
+      transform 0.2s ease,
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+    cursor: pointer;
+  }
+  .btn:active {
+    transform: scale(0.97);
+  }
+  .btn-primary {
+    background: var(--color-magenta);
+    color: #fff;
+    box-shadow: 0 8px 28px -10px rgba(217, 0, 122, 0.8);
+  }
+  .btn-primary:hover {
+    background: var(--color-magenta-600);
+    box-shadow: 0 10px 34px -8px rgba(255, 79, 184, 0.7);
+  }
+  .btn-ghost {
+    border: 1px solid #ffffff33;
+    color: #fff;
+  }
+  .btn-ghost:hover {
+    border-color: var(--color-neon);
+    background: #ffffff0d;
+  }
+  .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .field {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.7rem 0.95rem;
+    border-radius: 0.85rem;
+    background: var(--color-ink);
+    border: 1px solid var(--color-line);
+    color: #fff;
+    font-size: 1rem;
+  }
+  .field::placeholder {
+    color: #8d7a86;
+  }
+  .field:focus {
+    outline: none;
+    border-color: var(--color-neon);
+    box-shadow: 0 0 0 3px #ff4fb833;
+  }
+  .eyebrow {
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--color-neon);
+  }
+}
+/* Ondas de sorvete: movimento sutil */
+@keyframes wave-drift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.wave-track {
+  display: flex;
+  width: 200%;
+  animation: wave-drift 26s linear infinite;
+}
+.wave-track.slow {
+  animation-duration: 40s;
+  animation-direction: reverse;
+}
+@keyframes neon-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+.glow {
+  animation: neon-pulse 6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .wave-track,
+  .glow {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}

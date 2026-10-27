@@ -1,0 +1,3510 @@
+Gelateria Mix — código completo do site (Next.js + TypeScript + Tailwind)
+Como usar este PDF:
+  - Cada arquivo começa em uma página nova, com o caminho em destaque.
+  - O código não tem numeração de linhas: selecione e cole direto no arquivo.
+  - Cada linha de código fica inteira em uma linha do PDF (sem quebras),
+    por isso as páginas de alguns arquivos são mais largas.
+  - Crie a pasta do projeto, crie cada arquivo com o caminho indicado e cole o conteúdo.
+  - As 4 fotos de produto vão em public/images/ com os nomes produto-01.jpg a produto-04.jpg.
+  - Depois: npm install  e  npm run dev
+Arquivos (48):
+  README.md
+  package.json
+  tsconfig.json
+  next.config.mjs
+  postcss.config.mjs
+  .gitignore
+  .prettierrc.json
+  app/globals.css
+  app/icon.svg
+  app/layout.tsx
+  app/opengraph-image.tsx
+  app/page.tsx
+  components/About.tsx
+  components/BusinessHours.tsx
+  components/CartDrawer.tsx
+  components/CategoryNavigation.tsx
+  components/CheckoutForm.tsx
+  components/FlavorSelector.tsx
+  components/Footer.tsx
+  components/GallerySection.tsx
+  components/Header.tsx
+  components/Hero.tsx
+  components/InstagramIcon.tsx
+  components/LocationSection.tsx
+  components/Logo.tsx
+  components/MenuSection.tsx
+  components/MobileCartBar.tsx
+  components/PhotoFrame.tsx
+  components/ProductCard.tsx
+  components/ProductCustomizer.tsx
+  components/ProductGallery.tsx
+  components/Providers.tsx
+  components/Reveal.tsx
+  components/ReviewsSection.tsx
+  components/Sheet.tsx
+  components/StoreGallery.tsx
+  components/Toast.tsx
+  components/Wave.tsx
+  components/WhatsAppCheckout.tsx
+  lib/cart.tsx
+  lib/catalog.ts
+  lib/config.ts
+  lib/format.ts
+
+  lib/gallery.ts
+  lib/pricing.ts
+  lib/reviews.ts
+  lib/whatsapp.ts
+  scripts/check-catalog.ts
+
+Arquivo: README.md
+# Gelateria Mix — Site oficial (Arcos, MG)
+Site com catálogo, carrinho e pedido pelo WhatsApp. Next.js + React + TypeScript + Tailwind CSS + Framer Motion + Lucide.
+## Como rodar
+    npm install
+    npm run dev        # http://localhost:3000
+    npm run check      # confere catálogo, preços e mensagem do WhatsApp
+    npm run build && npm start
+## Onde editar
+- Produtos, sabores, tamanhos e preços (em centavos): `lib/catalog.ts`
+- Regra do adicional de R$ 3,00 em sundae de 2 sabores: `PRICING_RULES` em `lib/catalog.ts`
+- Dados da loja, horários, links e logotipo: `lib/config.ts`
+- Fotos da galeria (4 produtos + 2 estabelecimento): `lib/gallery.ts` e `public/images/`
+- Avaliações (exatamente 3): `lib/reviews.ts`
+- Cálculo de preços: `lib/pricing.ts` | Mensagem do WhatsApp: `lib/whatsapp.ts` | Carrinho: `lib/cart.tsx`
+## Publicar na Vercel
+1. Suba a pasta para um repositório no GitHub.
+2. Na Vercel, importe o repositório (Framework: Next.js, sem configuração extra).
+3. Opcional: defina `NEXT_PUBLIC_SITE_URL` com o domínio definitivo para ativar a URL canônica.
+## Pendências para a loja
+- Enviar o arquivo do logotipo e informar em `BUSINESS.logoSrc` (`lib/config.ts`).
+- Enviar 2 fotos do estabelecimento (`lib/gallery.ts`, `STORE_PHOTOS`).
+- Preencher nome/data/link das 3 avaliações (`lib/reviews.ts`).
+- Confirmar a regra do adicional dos sabores especiais quando o sundae tem 2 sabores especiais.
+Arquivo: package.json
+{
+  "name": "gelateria-mix",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "check": "tsx scripts/check-catalog.ts"
+  },
+  "dependencies": {
+    "@fontsource-variable/fraunces": "^5.3.0",
+    "@fontsource-variable/manrope": "^5.3.0",
+    "framer-motion": "^14.7.1",
+    "lucide-react": "^1.62.0",
+    "next": "^16.4.3",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^26.6.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
+Arquivo: tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
+Arquivo: next.config.mjs
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: { formats: ["image/avif", "image/webp"] },
+};
+export default nextConfig;
+Arquivo: postcss.config.mjs
+const config = {
+  plugins: { "@tailwindcss/postcss": {} },
+};
+export default config;
+Arquivo: .gitignore
+node_modules
+.next
+out
+next-env.d.ts
+*.tsbuildinfo
+.env*.local
+.vercel
+Arquivo: .prettierrc.json
+{ "printWidth": 100, "trailingComma": "all" }
+Arquivo: app/globals.css
+@import "tailwindcss";
+@theme {
+  --font-display: "Fraunces Variable", Georgia, "Times New Roman", serif;
+  --font-sans: "Manrope Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --color-ink: #0a0709;
+  --color-ink-2: #130c10;
+  --color-ink-3: #1d1218;
+  --color-line: #2c1d26;
+  --color-magenta: #d9007a;
+  --color-magenta-600: #b80067;
+  --color-neon: #ff4fb8;
+  --color-cream: #f7e9d6;
+  --color-cream-dim: #cdb9a4;
+}
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--color-ink);
+    color: #fff;
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background: var(--color-magenta);
+    color: #fff;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-neon);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  button,
+  a,
+  [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+@layer components {
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 3rem;
+    padding: 0 1.4rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    transition:
+      transform 0.2s ease,
+Arquivo (continuação): app/globals.css
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+    cursor: pointer;
+  }
+  .btn:active {
+    transform: scale(0.97);
+  }
+  .btn-primary {
+    background: var(--color-magenta);
+    color: #fff;
+    box-shadow: 0 8px 28px -10px rgba(217, 0, 122, 0.8);
+  }
+  .btn-primary:hover {
+    background: var(--color-magenta-600);
+    box-shadow: 0 10px 34px -8px rgba(255, 79, 184, 0.7);
+  }
+  .btn-ghost {
+    border: 1px solid #ffffff33;
+    color: #fff;
+  }
+  .btn-ghost:hover {
+    border-color: var(--color-neon);
+    background: #ffffff0d;
+  }
+  .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  .field {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.7rem 0.95rem;
+    border-radius: 0.85rem;
+    background: var(--color-ink);
+    border: 1px solid var(--color-line);
+    color: #fff;
+    font-size: 1rem;
+  }
+  .field::placeholder {
+    color: #8d7a86;
+  }
+  .field:focus {
+    outline: none;
+    border-color: var(--color-neon);
+    box-shadow: 0 0 0 3px #ff4fb833;
+  }
+  .eyebrow {
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--color-neon);
+  }
+}
+/* Ondas de sorvete: movimento sutil */
+@keyframes wave-drift {
+Arquivo (continuação): app/globals.css
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.wave-track {
+  display: flex;
+  width: 200%;
+  animation: wave-drift 26s linear infinite;
+}
+.wave-track.slow {
+  animation-duration: 40s;
+  animation-direction: reverse;
+}
+@keyframes neon-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+.glow {
+  animation: neon-pulse 6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .wave-track,
+  .glow {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
+Arquivo: app/icon.svg
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="16" fill="#0a0709"/>
+  <circle cx="32" cy="32" r="23" fill="none" stroke="#ff4fb8" stroke-width="3"/>
+  <text x="32" y="41" text-anchor="middle" font-family="Georgia, serif"
+    font-style="italic" font-weight="700" font-size="26" fill="#ffffff">Mix</text>
+</svg>
+Arquivo: app/layout.tsx
+import type { Metadata, Viewport } from "next";
+import "@fontsource-variable/fraunces";
+import "@fontsource-variable/manrope";
+import "./globals.css";
+import { Providers } from "@/components/Providers";
+import { BUSINESS, BUSINESS_HOURS } from "@/lib/config";
+const envUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : undefined);
+const siteUrl = envUrl ?? "http://localhost:3000";
+const title = "Gelateria Mix Arcos MG — Sorvetes, Milk-shakes e Sundaes no Centro";
+const description =
+  "Gelateria Mix na Praça da Matriz, centro de Arcos (MG): sundaes, milk-shakes, casquinhas e sobremesas geladas. Monte seu pedido e finalize pelo WhatsApp.";
+export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
+  title,
+  description,
+  keywords: [
+    "Gelateria Mix Arcos MG",
+    "sorveteria em Arcos MG",
+    "milk-shake em Arcos",
+    "sundae em Arcos",
+    "sorvetes no centro de Arcos",
+    "gelateria na Praça da Matriz",
+  ],
+  // URL canônica só é definida quando há domínio definitivo (NEXT_PUBLIC_SITE_URL ou domínio de produção da Vercel).
+  alternates: envUrl ? { canonical: "/" } : undefined,
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    siteName: BUSINESS.name,
+    title,
+    description,
+    url: "/",
+  },
+  twitter: { card: "summary_large_image", title, description },
+};
+export const viewport: Viewport = {
+  themeColor: "#0a0709",
+  width: "device-width",
+  initialScale: 1,
+};
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "IceCreamShop",
+  name: BUSINESS.name,
+  description: BUSINESS.tagline,
+  telephone: `+${BUSINESS.whatsappNumber}`,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: BUSINESS.address.street,
+    addressLocality: BUSINESS.address.city,
+Arquivo (continuação): app/layout.tsx
+    addressRegion: BUSINESS.address.state,
+    postalCode: BUSINESS.address.postalCode,
+    addressCountry: "BR",
+  },
+  sameAs: [BUSINESS.instagramUrl],
+  openingHoursSpecification: BUSINESS_HOURS.map((h) => ({
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: h.schemaDay,
+    opens: h.opens,
+    closes: h.closes,
+  })),
+  ...(envUrl ? { url: envUrl } : {}),
+  areaServed: `${BUSINESS.city}, ${BUSINESS.state}`,
+};
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="pt-BR">
+      <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <Providers>{children}</Providers>
+      </body>
+    </html>
+  );
+}
+Arquivo: app/opengraph-image.tsx
+import { ImageResponse } from "next/og";
+export const alt = "Gelateria Mix — Arcos, MG";
+export const size = { width: 1200, height: 630 };
+export const contentType = "image/png";
+export default function OpengraphImage() {
+  return new ImageResponse(
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        padding: "80px",
+        background: "#0a0709",
+        color: "#ffffff",
+        fontFamily: "serif",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          fontSize: 28,
+          letterSpacing: 6,
+          color: "#ff4fb8",
+          textTransform: "uppercase",
+        }}
+      >
+        Arcos · Minas Gerais
+      </div>
+      <div style={{ display: "flex", alignItems: "baseline", marginTop: 24 }}>
+        <span style={{ fontSize: 150, fontWeight: 700 }}>Gelateria</span>
+        <span style={{ fontSize: 96, fontStyle: "italic", color: "#ff4fb8", marginLeft: 24 }}>
+          mix
+        </span>
+      </div>
+      <div style={{ display: "flex", fontSize: 38, marginTop: 28, color: "#cdb9a4" }}>
+        Sundaes, milk-shakes e sobremesas geladas. Peça pelo WhatsApp.
+      </div>
+      <div
+        style={{
+          display: "flex",
+          height: 8,
+          width: 220,
+          background: "#d9007a",
+          marginTop: 48,
+          borderRadius: 8,
+        }}
+      />
+    </div>,
+    size,
+  );
+}
+Arquivo: app/page.tsx
+import { About } from "@/components/About";
+import { Footer } from "@/components/Footer";
+import { GallerySection } from "@/components/GallerySection";
+import { Header } from "@/components/Header";
+import { Hero } from "@/components/Hero";
+import { LocationSection } from "@/components/LocationSection";
+import { MenuSection } from "@/components/MenuSection";
+import { ReviewsSection } from "@/components/ReviewsSection";
+export default function Home() {
+  return (
+    <>
+      <Header />
+      <main>
+        <Hero />
+        <MenuSection />
+        <About />
+        <GallerySection />
+        <ReviewsSection />
+        <LocationSection />
+      </main>
+      <Footer />
+    </>
+  );
+}
+Arquivo: components/About.tsx
+import { Clock, MapPin } from "lucide-react";
+import { BUSINESS, BUSINESS_HOURS, FULL_ADDRESS } from "@/lib/config";
+import { Reveal } from "./Reveal";
+import { Wave } from "./Wave";
+export function About() {
+  const hoursOf = (day: number) => BUSINESS_HOURS.find((h) => h.day === day)!.text;
+  return (
+    <section id="sobre" className="relative bg-ink pt-20">
+      <div className="absolute inset-x-0 top-0 -translate-y-full">
+        <Wave fill="#0a0709" className="-mb-px" />
+      </div>
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 pb-20 sm:px-6 lg:grid-cols-[1.2fr_0.8fr] lg:gap-16">
+        <Reveal>
+          <p className="eyebrow">Sobre a Mix</p>
+          <h2 className="mt-3 font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
+            Mais sabor para os <span className="italic text-neon">seus momentos</span>.
+          </h2>
+          <p className="mt-6 max-w-xl text-lg leading-relaxed text-cream-dim">
+            A Gelateria Mix é um ponto de encontro para quem gosta de transformar uma pausa em um
+            momento especial. No coração de Arcos, você encontra opções de sobremesas geladas para
+            descobrir novos sabores e aproveitar seus favoritos.
+          </p>
+        </Reveal>
+        <Reveal delay={0.12}>
+          <div className="rounded-3xl border border-line bg-ink-2 p-6">
+            <div className="flex gap-3">
+              <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-neon" aria-hidden="true" />
+              <div>
+                <p className="font-bold">
+                  Centro de {BUSINESS.city}, {BUSINESS.state}
+                </p>
+                <address className="mt-1 text-sm not-italic leading-relaxed text-cream-dim">
+                  {FULL_ADDRESS}
+                  <br />
+                  {BUSINESS.address.reference}
+                </address>
+              </div>
+            </div>
+            <div className="mt-5 flex gap-3 border-t border-line pt-5">
+              <Clock className="mt-0.5 h-5 w-5 shrink-0 text-neon" aria-hidden="true" />
+              <div className="text-sm text-cream-dim">
+                <p className="font-bold text-white">Horários</p>
+                <p className="mt-1">Seg.: {hoursOf(1)}</p>
+                <p>Ter. a sex.: {hoursOf(2)}</p>
+                <p>Sáb.: {hoursOf(6)}</p>
+                <p>Dom.: {hoursOf(0)}</p>
+                <a
+                  href="#localizacao"
+                  className="mt-2 inline-block font-semibold text-neon underline-offset-4 hover:underline"
+                >
+                  Ver horários completos
+                </a>
+              </div>
+            </div>
+          </div>
+        </Reveal>
+Arquivo (continuação): components/About.tsx
+      </div>
+    </section>
+  );
+}
+Arquivo: components/BusinessHours.tsx
+"use client";
+import { useEffect, useState } from "react";
+import { BUSINESS_HOURS } from "@/lib/config";
+/** Tabela semanal de horários. O dia de hoje é destacado após a hidratação (evita divergência servidor/cliente). */
+export function BusinessHours() {
+  const [today, setToday] = useState<number | null>(null);
+  useEffect(() => {
+    setToday(new Date().getDay());
+  }, []);
+  return (
+    <table className="w-full text-left">
+      <caption className="sr-only">Horários de funcionamento da Gelateria Mix</caption>
+      <thead className="sr-only">
+        <tr>
+          <th scope="col">Dia</th>
+          <th scope="col">Horário</th>
+        </tr>
+      </thead>
+      <tbody>
+        {BUSINESS_HOURS.map((h) => {
+          const isToday = today === h.day;
+          return (
+            <tr
+              key={h.day}
+              className={`border-b border-line last:border-0 ${isToday ? "bg-magenta/15" : ""}`}
+            >
+              <th
+                scope="row"
+                className={`px-3 py-3 text-sm font-semibold ${isToday ? "text-white" : "text-white/80"}`}
+              >
+                {h.label}
+                {isToday && (
+                  <span className="ml-2 rounded-full bg-magenta px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider">
+                    Hoje
+                  </span>
+                )}
+              </th>
+              <td
+                className={`px-3 py-3 text-right text-sm tabular-nums ${isToday ? "font-bold text-white" : "text-cream-dim"}`}
+              >
+                {h.text}
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+}
+Arquivo: components/CartDrawer.tsx
+"use client";
+import { AnimatePresence, motion } from "framer-motion";
+import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { useCart } from "@/lib/cart";
+import { brl, joinNames } from "@/lib/format";
+import { Sheet } from "./Sheet";
+import { WhatsAppCheckout } from "./WhatsAppCheckout";
+export function CartDrawer() {
+  const { isOpen, closeCart, lines, total, count, setQuantity, removeItem } = useCart();
+  return (
+    <Sheet open={isOpen} onClose={closeCart} title="Seu pedido" side="right">
+      <div className="border-b border-line px-5 pb-4 pt-5 pr-16">
+        <p className="eyebrow">Seu pedido</p>
+        <h2 className="mt-1 font-display text-2xl font-semibold">
+          {count === 0 ? "Pedido vazio" : `${count} ${count === 1 ? "item" : "itens"}`}
+        </h2>
+      </div>
+      <div className="flex-1 overflow-y-auto px-5 py-5">
+        {lines.length === 0 ? (
+          <div className="flex h-full flex-col items-center justify-center gap-4 py-10 text-center">
+            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-ink-3">
+              <ShoppingBag className="h-7 w-7 text-neon" aria-hidden="true" />
+            </span>
+            <p className="max-w-[16rem] text-cream-dim">
+              Você ainda não adicionou nada. Que tal explorar o cardápio?
+            </p>
+            <a href="#cardapio" onClick={closeCart} className="btn btn-primary">
+              Explorar cardápio
+            </a>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <ul className="space-y-3">
+              <AnimatePresence initial={false}>
+                {lines.map((line) => (
+                  <motion.li
+                    key={line.item.key}
+                    layout
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="rounded-2xl border border-line bg-ink p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="font-bold leading-tight">{line.product.name}</p>
+                          <p className="mt-1 text-sm text-cream-dim">
+                            {line.size ? `${line.size.label} · ` : ""}
+                            {joinNames(line.flavors.map((f) => f.name))}
+                          </p>
+                          {line.surcharge > 0 && (
+                            <p className="mt-0.5 text-xs font-semibold text-neon">
+                              Inclui {brl(line.surcharge)} de sabor especial
+Arquivo (continuação): components/CartDrawer.tsx
+                            </p>
+                          )}
+                          <p className="mt-1 text-xs text-white/60">Unitário: {brl(line.unit)}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeItem(line.item.key)}
+                          aria-label={`Remover ${line.product.name} do pedido`}
+                          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-white/60 transition-colors hover:bg-white/10 hover:text-red-300"
+                        >
+                          <Trash2 className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                      </div>
+                      <div className="mt-3 flex items-center justify-between">
+                        <div className="flex items-center gap-1 rounded-full border border-line p-1">
+                          <button
+                            type="button"
+                            onClick={() => setQuantity(line.item.key, line.item.quantity - 1)}
+                            disabled={line.item.quantity <= 1}
+                            aria-label="Diminuir quantidade"
+                            className="inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/10 disabled:opacity-40"
+                          >
+                            <Minus className="h-4 w-4" aria-hidden="true" />
+                          </button>
+                          <motion.span
+                            key={line.item.quantity}
+                            initial={{ scale: 1.25 }}
+                            animate={{ scale: 1 }}
+                            className="w-8 text-center font-bold tabular-nums"
+                            aria-label={`Quantidade: ${line.item.quantity}`}
+                          >
+                            {line.item.quantity}
+                          </motion.span>
+                          <button
+                            type="button"
+                            onClick={() => setQuantity(line.item.key, line.item.quantity + 1)}
+                            aria-label="Aumentar quantidade"
+                            className="inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/10"
+                          >
+                            <Plus className="h-4 w-4" aria-hidden="true" />
+                          </button>
+                        </div>
+                        <p className="font-display text-lg font-semibold">{brl(line.subtotal)}</p>
+                      </div>
+                    </div>
+                  </motion.li>
+                ))}
+              </AnimatePresence>
+            </ul>
+            <div className="flex items-end justify-between border-t border-line pt-4">
+              <div>
+                <p className="text-sm text-white/65">Total dos produtos</p>
+                <p className="text-xs text-white/50">
+                  Entrega e outras condições são combinadas pelo WhatsApp.
+                </p>
+              </div>
+              <motion.p
+Arquivo (continuação): components/CartDrawer.tsx
+                key={total}
+                initial={{ y: -6, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                className="font-display text-3xl font-semibold"
+              >
+                {brl(total)}
+              </motion.p>
+            </div>
+            <div className="border-t border-line pt-5">
+              <WhatsAppCheckout />
+            </div>
+          </div>
+        )}
+      </div>
+    </Sheet>
+  );
+}
+Arquivo: components/CategoryNavigation.tsx
+"use client";
+import { motion } from "framer-motion";
+import { CATEGORIES, productsByCategory } from "@/lib/catalog";
+import type { CategoryId } from "@/lib/catalog";
+interface CategoryNavigationProps {
+  active: CategoryId;
+  onChange: (id: CategoryId) => void;
+}
+export function CategoryNavigation({ active, onChange }: CategoryNavigationProps) {
+  return (
+    <div className="sticky top-16 z-30 -mx-4 border-y border-line bg-ink/90 px-4 py-3 backdrop-blur-md sm:-mx-6 sm:px-6">
+      <div
+        role="tablist"
+        aria-label="Categorias do cardápio"
+        className="mx-auto flex max-w-6xl gap-2 overflow-x-auto pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {CATEGORIES.map((cat) => {
+          const selected = cat.id === active;
+          const total = productsByCategory(cat.id).length;
+          return (
+            <button
+              key={cat.id}
+              id={`tab-${cat.id}`}
+              role="tab"
+              type="button"
+              aria-selected={selected}
+              aria-controls="painel-cardapio"
+              onClick={() => onChange(cat.id)}
+              className={`relative min-h-12 shrink-0 rounded-full px-5 text-sm font-bold transition-colors sm:px-6 ${
+                selected ? "text-white" : "text-white/70 hover:text-white"
+              }`}
+            >
+              {selected && (
+                <motion.span
+                  layoutId="categoria-ativa"
+                  className="absolute inset-0 rounded-full bg-magenta"
+                  transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                />
+              )}
+              {!selected && (
+                <span
+                  className="absolute inset-0 rounded-full border border-line"
+                  aria-hidden="true"
+                />
+              )}
+              <span className="relative flex items-center gap-2">
+                <span className="sm:hidden">{cat.shortLabel}</span>
+                <span className="hidden sm:inline">{cat.label}</span>
+                <span
+                  className={`rounded-full px-2 py-0.5 text-xs ${selected ? "bg-white/20" : "bg-white/10"}`}
+                >
+                  {total}
+                </span>
+              </span>
+            </button>
+          );
+Arquivo (continuação): components/CategoryNavigation.tsx
+        })}
+      </div>
+    </div>
+  );
+}
+Arquivo: components/CheckoutForm.tsx
+"use client";
+import type { CustomerData, CustomerErrors, OrderMode } from "@/lib/whatsapp";
+interface CheckoutFormProps {
+  data: CustomerData;
+  errors: CustomerErrors;
+  onChange: (patch: Partial<CustomerData>) => void;
+}
+const MODES: { id: OrderMode; label: string }[] = [
+  { id: "retirada", label: "Retirada no estabelecimento" },
+  { id: "entrega", label: "Entrega" },
+];
+export function CheckoutForm({ data, errors, onChange }: CheckoutFormProps) {
+  return (
+    <div className="space-y-4">
+      <div>
+        <label htmlFor="cliente-nome" className="mb-1.5 block text-sm font-bold">
+          Seu nome
+        </label>
+        <input
+          id="cliente-nome"
+          type="text"
+          autoComplete="name"
+          value={data.name}
+          onChange={(e) => onChange({ name: e.target.value })}
+          aria-invalid={Boolean(errors.name)}
+          aria-describedby={errors.name ? "erro-nome" : undefined}
+          className="field"
+          placeholder="Como podemos te chamar?"
+        />
+        {errors.name && (
+          <p id="erro-nome" role="alert" className="mt-1.5 text-sm font-semibold text-red-300">
+            {errors.name}
+          </p>
+        )}
+      </div>
+      <fieldset>
+        <legend className="mb-1.5 text-sm font-bold">Como prefere receber?</legend>
+        <div className="grid grid-cols-2 gap-2">
+          {MODES.map((m) => (
+            <label
+              key={m.id}
+              className={`flex min-h-14 cursor-pointer items-center justify-center rounded-xl border px-3 py-2 text-center text-sm font-semibold leading-tight transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-neon ${
+                data.mode === m.id
+                  ? "border-neon bg-magenta/20"
+                  : "border-line bg-ink hover:border-white/40"
+              }`}
+            >
+              <input
+                type="radio"
+                name="modalidade"
+                value={m.id}
+                checked={data.mode === m.id}
+                onChange={() => onChange({ mode: m.id })}
+                className="sr-only"
+Arquivo (continuação): components/CheckoutForm.tsx
+              />
+              {m.label}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+      {data.mode === "entrega" && (
+        <div>
+          <label htmlFor="cliente-endereco" className="mb-1.5 block text-sm font-bold">
+            Endereço de entrega
+          </label>
+          <textarea
+            id="cliente-endereco"
+            rows={2}
+            autoComplete="street-address"
+            value={data.address}
+            onChange={(e) => onChange({ address: e.target.value })}
+            aria-invalid={Boolean(errors.address)}
+            aria-describedby={errors.address ? "erro-endereco" : undefined}
+            className="field resize-none"
+            placeholder="Rua, número, bairro e ponto de referência"
+          />
+          {errors.address && (
+            <p
+              id="erro-endereco"
+              role="alert"
+              className="mt-1.5 text-sm font-semibold text-red-300"
+            >
+              {errors.address}
+            </p>
+          )}
+        </div>
+      )}
+      <div>
+        <label htmlFor="cliente-pagamento" className="mb-1.5 block text-sm font-bold">
+          Forma de pagamento <span className="font-normal text-white/60">(opcional)</span>
+        </label>
+        <input
+          id="cliente-pagamento"
+          type="text"
+          value={data.payment}
+          onChange={(e) => onChange({ payment: e.target.value })}
+          className="field"
+          placeholder="Ex.: a combinar pelo WhatsApp"
+        />
+      </div>
+      <div>
+        <label htmlFor="cliente-obs" className="mb-1.5 block text-sm font-bold">
+          Observações <span className="font-normal text-white/60">(opcional)</span>
+        </label>
+        <textarea
+          id="cliente-obs"
+          rows={2}
+          value={data.notes}
+          onChange={(e) => onChange({ notes: e.target.value })}
+          className="field resize-none"
+Arquivo (continuação): components/CheckoutForm.tsx
+          placeholder="Alguma observação sobre o pedido?"
+        />
+      </div>
+    </div>
+  );
+}
+Arquivo: components/FlavorSelector.tsx
+"use client";
+import { motion } from "framer-motion";
+import { Check, Search } from "lucide-react";
+import { useMemo, useState } from "react";
+import type { Flavor } from "@/lib/catalog";
+import { brl } from "@/lib/format";
+interface FlavorSelectorProps {
+  flavors: Flavor[];
+  count: 1 | 2;
+  allowDuplicates: boolean;
+  /** Um item por espaço de sabor; "" = ainda não escolhido. */
+  slots: string[];
+  onChange: (slots: string[]) => void;
+}
+function normalize(text: string): string {
+  return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+export function FlavorSelector({
+  flavors,
+  count,
+  allowDuplicates,
+  slots,
+  onChange,
+}: FlavorSelectorProps) {
+  const [activeSlot, setActiveSlot] = useState(0);
+  const [query, setQuery] = useState("");
+  const nameById = useMemo(() => new Map(flavors.map((f) => [f.id, f.name])), [flavors]);
+  const hasSpecial = flavors.some((f) => (f.surcharge ?? 0) > 0);
+  const showSearch = flavors.length > 12;
+  const filtered = useMemo(() => {
+    const q = normalize(query.trim());
+    return q ? flavors.filter((f) => normalize(f.name).includes(q)) : flavors;
+  }, [flavors, query]);
+  const regular = filtered.filter((f) => !(f.surcharge && f.surcharge > 0));
+  const special = filtered.filter((f) => f.surcharge && f.surcharge > 0);
+  function pick(flavorId: string) {
+    const next = [...slots];
+    if (count === 1) {
+      next[0] = next[0] === flavorId ? "" : flavorId;
+      onChange(next);
+      return;
+    }
+    if (next[activeSlot] === flavorId) {
+      next[activeSlot] = "";
+      onChange(next);
+      return;
+    }
+    next[activeSlot] = flavorId;
+    onChange(next);
+    const emptyIndex = next.findIndex((v, i) => i !== activeSlot && !v);
+    if (emptyIndex !== -1) setActiveSlot(emptyIndex);
+Arquivo (continuação): components/FlavorSelector.tsx
+  }
+  function renderFlavor(flavor: Flavor) {
+    const selectedIndex = slots.indexOf(flavor.id);
+    const selected = selectedIndex !== -1;
+    const takenByOtherSlot =
+      count === 2 && !allowDuplicates && selected && selectedIndex !== activeSlot;
+    return (
+      <motion.button
+        key={flavor.id}
+        type="button"
+        whileTap={{ scale: 0.95 }}
+        onClick={() => pick(flavor.id)}
+        disabled={takenByOtherSlot}
+        aria-pressed={selected}
+        className={`relative flex min-h-12 items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left text-sm font-semibold leading-tight transition-colors ${
+          selected
+            ? "border-neon bg-magenta/20 text-white"
+            : "border-line bg-ink text-white/85 hover:border-white/40"
+        } ${takenByOtherSlot ? "cursor-not-allowed opacity-60" : ""}`}
+      >
+        <span>
+          {flavor.name}
+          {flavor.surcharge ? (
+            <span className="mt-0.5 block text-xs font-bold text-neon">
+              + {brl(flavor.surcharge)}
+            </span>
+          ) : null}
+        </span>
+        {selected && (
+          <motion.span
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 500, damping: 20 }}
+            className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-neon text-ink"
+          >
+            {count === 2 ? (
+              <span className="text-[0.7rem] font-extrabold">{selectedIndex + 1}</span>
+            ) : (
+              <Check className="h-3.5 w-3.5" aria-hidden="true" />
+            )}
+          </motion.span>
+        )}
+      </motion.button>
+    );
+  }
+  return (
+    <div>
+      {count === 2 && (
+        <div className="mb-3 grid grid-cols-2 gap-2" role="group" aria-label="Espaços de sabor">
+          {Array.from({ length: 2 }, (_, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setActiveSlot(i)}
+              aria-pressed={activeSlot === i}
+              className={`min-h-14 rounded-xl border px-3 py-2 text-left transition-colors ${
+Arquivo (continuação): components/FlavorSelector.tsx
+                activeSlot === i ? "border-neon bg-ink-3" : "border-line bg-ink"
+              }`}
+            >
+              <span className="block text-xs font-bold uppercase tracking-wider text-white/60">
+                Sabor {i + 1}
+              </span>
+              <span
+                className={`block truncate text-sm font-semibold ${slots[i] ? "text-white" : "text-white/45"}`}
+              >
+                {slots[i] ? nameById.get(slots[i]) : "Toque para escolher"}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+      {showSearch && (
+        <label className="relative mb-3 block">
+          <span className="sr-only">Buscar sabor</span>
+          <Search
+            className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/50"
+            aria-hidden="true"
+          />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Buscar sabor"
+            className="field !pl-10"
+          />
+        </label>
+      )}
+      {filtered.length === 0 && (
+        <p className="py-4 text-sm text-white/60">Nenhum sabor encontrado para “{query}”.</p>
+      )}
+      {regular.length > 0 && (
+        <div>
+          {hasSpecial && (
+            <p className="mb-2 text-xs font-bold uppercase tracking-wider text-white/60">
+              Sabores tradicionais
+            </p>
+          )}
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{regular.map(renderFlavor)}</div>
+        </div>
+      )}
+      {special.length > 0 && (
+        <div className="mt-4">
+          <p className="mb-2 text-xs font-bold uppercase tracking-wider text-neon">
+            Sabores especiais · + {brl(special[0].surcharge ?? 0)}
+          </p>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{special.map(renderFlavor)}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+Arquivo: components/Footer.tsx
+import { MessageCircle } from "lucide-react";
+import { BUSINESS, FULL_ADDRESS, NAV_LINKS, WHATSAPP_BASE_URL } from "@/lib/config";
+import { InstagramIcon } from "./InstagramIcon";
+import { Logo } from "./Logo";
+export function Footer() {
+  return (
+    <footer className="border-t border-line bg-ink pb-28 pt-12 md:pb-12">
+      <div className="mx-auto grid max-w-6xl gap-8 px-4 sm:px-6 md:grid-cols-[1.3fr_1fr_1fr]">
+        <div>
+          <Logo />
+          <p className="mt-4 max-w-xs text-sm leading-relaxed text-cream-dim">
+            {BUSINESS.tagline}. {BUSINESS.address.neighborhood} de {BUSINESS.city}, {BUSINESS.state}
+            .
+          </p>
+        </div>
+        <nav aria-label="Rodapé">
+          <p className="text-sm font-bold">Navegação</p>
+          <ul className="mt-3 space-y-1">
+            {NAV_LINKS.map((l) => (
+              <li key={l.href}>
+                <a
+                  href={l.href}
+                  className="inline-flex min-h-10 items-center text-sm text-cream-dim transition-colors hover:text-neon"
+                >
+                  {l.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <div>
+          <p className="text-sm font-bold">Contato</p>
+          <address className="mt-3 text-sm not-italic leading-relaxed text-cream-dim">
+            {FULL_ADDRESS}
+          </address>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <a
+              href={WHATSAPP_BASE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-ghost !min-h-11 !px-4 !text-sm"
+            >
+              <MessageCircle className="h-4 w-4" aria-hidden="true" />
+              {BUSINESS.whatsappDisplay}
+            </a>
+            <a
+              href={BUSINESS.instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-ghost !min-h-11 !px-4 !text-sm"
+            >
+              <InstagramIcon className="h-4 w-4" aria-hidden="true" />
+              Instagram
+            </a>
+          </div>
+        </div>
+Arquivo (continuação): components/Footer.tsx
+      </div>
+      <p className="mx-auto mt-10 max-w-6xl px-4 text-xs text-white/45 sm:px-6">
+        © {new Date().getFullYear()} {BUSINESS.name}. Todos os direitos reservados.
+      </p>
+    </footer>
+  );
+}
+Arquivo: components/GallerySection.tsx
+import { ProductGallery } from "./ProductGallery";
+import { Reveal } from "./Reveal";
+import { StoreGallery } from "./StoreGallery";
+export function GallerySection() {
+  return (
+    <section id="galeria" className="bg-ink-2 py-20">
+      <div className="mx-auto max-w-6xl space-y-12 px-4 sm:px-6">
+        <Reveal>
+          <p className="eyebrow">Galeria</p>
+          <h2 className="mt-3 font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
+            Dá água na <span className="italic text-neon">boca</span>.
+          </h2>
+        </Reveal>
+        <ProductGallery />
+        <StoreGallery />
+      </div>
+    </section>
+  );
+}
+Arquivo: components/Header.tsx
+"use client";
+import { AnimatePresence, motion } from "framer-motion";
+import { Menu, ShoppingBag, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { NAV_LINKS } from "@/lib/config";
+import { useCart } from "@/lib/cart";
+import { Logo } from "./Logo";
+export function Header() {
+  const { count, openCart } = useCart();
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [menuOpen]);
+  return (
+    <header
+      className={`fixed inset-x-0 top-0 z-40 transition-[background-color,backdrop-filter,border-color] duration-300 ${
+        scrolled || menuOpen
+          ? "border-b border-line bg-ink/85 backdrop-blur-md"
+          : "border-b border-transparent bg-transparent"
+      }`}
+    >
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+        <a href="#inicio" aria-label="Gelateria Mix — início" className="shrink-0">
+          <Logo />
+        </a>
+        <nav aria-label="Principal" className="hidden items-center gap-7 lg:flex">
+          {NAV_LINKS.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              className="text-sm font-semibold text-white/80 transition-colors hover:text-neon"
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
+        <div className="flex items-center gap-2">
+          <a
+            href="#cardapio"
+            className="btn btn-primary hidden !min-h-11 !px-5 !text-sm md:inline-flex"
+Arquivo (continuação): components/Header.tsx
+          >
+            Montar meu pedido
+          </a>
+          <button
+            type="button"
+            onClick={openCart}
+            className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 transition-colors hover:border-neon"
+            aria-label={`Abrir pedido, ${count} ${count === 1 ? "item" : "itens"}`}
+          >
+            <ShoppingBag className="h-5 w-5" aria-hidden="true" />
+            <AnimatePresence>
+              {count > 0 && (
+                <motion.span
+                  key={count}
+                  initial={{ scale: 0.4, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.4, opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 18 }}
+                  className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-magenta px-1 text-[0.7rem] font-bold text-white"
+                >
+                  {count}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </button>
+          <button
+            type="button"
+            onClick={() => setMenuOpen((v) => !v)}
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/20 lg:hidden"
+            aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
+            aria-expanded={menuOpen}
+            aria-controls="menu-mobile"
+          >
+            {menuOpen ? (
+              <X className="h-5 w-5" aria-hidden="true" />
+            ) : (
+              <Menu className="h-5 w-5" aria-hidden="true" />
+            )}
+          </button>
+        </div>
+      </div>
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.nav
+            id="menu-mobile"
+            aria-label="Menu mobile"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="overflow-hidden lg:hidden"
+          >
+            <div className="mx-auto flex max-w-6xl flex-col gap-1 px-4 pb-5 pt-2 sm:px-6">
+              {NAV_LINKS.map((link) => (
+                <a
+                  key={link.href}
+Arquivo (continuação): components/Header.tsx
+                  href={link.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="flex min-h-12 items-center border-b border-line text-lg font-semibold text-white/90"
+                >
+                  {link.label}
+                </a>
+              ))}
+              <a
+                href="#cardapio"
+                onClick={() => setMenuOpen(false)}
+                className="btn btn-primary mt-4"
+              >
+                Montar meu pedido
+              </a>
+            </div>
+          </motion.nav>
+        )}
+      </AnimatePresence>
+    </header>
+  );
+}
+Arquivo: components/Hero.tsx
+"use client";
+import { motion } from "framer-motion";
+import { ArrowDown, MapPin } from "lucide-react";
+import Image from "next/image";
+import { BUSINESS } from "@/lib/config";
+import { HERO_PHOTO } from "@/lib/gallery";
+import { Wave } from "./Wave";
+const ease = [0.22, 1, 0.36, 1] as const;
+const titleWords = ["Seu", "momento", "mais", "doce", "começa", "aqui."];
+export function Hero() {
+  return (
+    <section id="inicio" className="relative isolate overflow-hidden pt-24 sm:pt-28">
+      {/* brilho rosa de fundo */}
+      <div
+        aria-hidden="true"
+        className="glow absolute -right-24 top-10 -z-10 h-[28rem] w-[28rem] rounded-full bg-magenta/30 blur-[120px]"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute -left-32 bottom-0 -z-10 h-80 w-80 rounded-full bg-neon/10 blur-[110px]"
+      />
+      <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 pb-24 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:gap-12 lg:pb-32">
+        <div>
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease }}
+            className="eyebrow inline-flex items-center gap-2"
+          >
+            <MapPin className="h-4 w-4" aria-hidden="true" />
+            {BUSINESS.name} · {BUSINESS.city}, {BUSINESS.state}
+          </motion.p>
+          <h1 className="mt-5 font-display text-[2.9rem] font-semibold leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl">
+            {titleWords.map((word, i) => (
+              <span key={word} className="mr-[0.22em] inline-block overflow-hidden align-bottom">
+                <motion.span
+                  className={`inline-block ${word === "doce" ? "italic text-neon" : ""}`}
+                  initial={{ y: "110%", rotate: 3 }}
+                  animate={{ y: 0, rotate: 0 }}
+                  transition={{ duration: 0.9, delay: 0.15 + i * 0.09, ease }}
+                >
+                  {word}
+                </motion.span>
+              </span>
+            ))}
+          </h1>
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.85, ease }}
+            className="mt-6 max-w-xl text-lg leading-relaxed text-cream-dim"
+          >
+Arquivo (continuação): components/Hero.tsx
+            Descubra seus sabores favoritos em milk-shakes cremosos, sundaes irresistíveis e muito
+            mais. Escolha, personalize e peça pelo WhatsApp.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1, ease }}
+            className="mt-8 flex flex-col gap-3 sm:flex-row"
+          >
+            <a href="#cardapio" className="btn btn-ghost">
+              Explorar cardápio
+              <ArrowDown className="h-4 w-4" aria-hidden="true" />
+            </a>
+            <a href="#cardapio" className="btn btn-primary">
+              Fazer meu pedido
+            </a>
+          </motion.div>
+        </div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.94, y: 24 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.3, ease }}
+          className="relative mx-auto w-full max-w-sm lg:max-w-md"
+        >
+          <div
+            aria-hidden="true"
+            className="absolute -inset-3 -z-10 rounded-[2.2rem] border border-neon/30"
+          />
+          <div className="relative aspect-[3/4] overflow-hidden rounded-[2rem] bg-ink-3 shadow-[0_30px_80px_-30px_rgba(217,0,122,0.7)]">
+            {HERO_PHOTO.src ? (
+              <Image
+                src={HERO_PHOTO.src}
+                alt={HERO_PHOTO.alt}
+                fill
+                priority
+                sizes="(min-width: 1024px) 28rem, 90vw"
+                className="object-cover"
+              />
+            ) : null}
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 bg-gradient-to-t from-ink/50 via-transparent to-transparent"
+            />
+          </div>
+        </motion.div>
+      </div>
+      <Wave fill="#130c10" className="absolute inset-x-0 bottom-0 -z-0" />
+    </section>
+  );
+}
+Arquivo: components/InstagramIcon.tsx
+/** Ícone simples do Instagram (a versão atual do lucide-react não inclui ícones de marcas). */
+export function InstagramIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.2" cy="6.8" r="0.8" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+Arquivo: components/LocationSection.tsx
+import { MapPin, MessageCircle, Navigation } from "lucide-react";
+import {
+  BUSINESS,
+  FULL_ADDRESS,
+  MAPS_DIRECTIONS_URL,
+  MAPS_EMBED_URL,
+  WHATSAPP_BASE_URL,
+} from "@/lib/config";
+import { BusinessHours } from "./BusinessHours";
+import { InstagramIcon } from "./InstagramIcon";
+import { Reveal } from "./Reveal";
+export function LocationSection() {
+  return (
+    <section id="localizacao" className="bg-ink-2 py-20">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <Reveal>
+          <p className="eyebrow">Localização e contato</p>
+          <h2 className="mt-3 font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
+            Venha nos <span className="italic text-neon">visitar</span>.
+          </h2>
+        </Reveal>
+        <div className="mt-10 grid gap-8 lg:grid-cols-2">
+          <Reveal>
+            <div className="space-y-6">
+              <div className="flex gap-3">
+                <MapPin className="mt-1 h-5 w-5 shrink-0 text-neon" aria-hidden="true" />
+                <address className="not-italic leading-relaxed">
+                  <span className="font-bold">{BUSINESS.name}</span>
+                  <br />
+                  <span className="text-cream-dim">{FULL_ADDRESS}</span>
+                  <br />
+                  <span className="text-cream-dim">{BUSINESS.address.reference}</span>
+                </address>
+              </div>
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                <a
+                  href={MAPS_DIRECTIONS_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary"
+                >
+                  <Navigation className="h-5 w-5" aria-hidden="true" />
+                  Como chegar
+                </a>
+                <a
+                  href={WHATSAPP_BASE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-ghost"
+                >
+                  <MessageCircle className="h-5 w-5" aria-hidden="true" />
+                  WhatsApp {BUSINESS.whatsappDisplay}
+                </a>
+                <a
+                  href={BUSINESS.instagramUrl}
+                  target="_blank"
+Arquivo (continuação): components/LocationSection.tsx
+                  rel="noopener noreferrer"
+                  className="btn btn-ghost"
+                >
+                  <InstagramIcon className="h-5 w-5" aria-hidden="true" />
+                  {BUSINESS.instagramHandle}
+                </a>
+              </div>
+              <div className="rounded-3xl border border-line bg-ink p-3 sm:p-4">
+                <h3 className="px-3 pb-2 pt-1 font-display text-xl font-semibold">
+                  Horários de funcionamento
+                </h3>
+                <BusinessHours />
+              </div>
+            </div>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <div className="h-80 overflow-hidden rounded-3xl border border-line bg-ink sm:h-96 lg:h-full lg:min-h-[28rem]">
+              <iframe
+                title="Mapa com a localização da Gelateria Mix, Praça Floriano Peixoto, 177, Arcos, MG"
+                src={MAPS_EMBED_URL}
+                className="h-full w-full border-0 grayscale-[0.3] invert-[0.92] hue-rotate-180"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                allowFullScreen
+              />
+            </div>
+          </Reveal>
+        </div>
+      </div>
+    </section>
+  );
+}
+Arquivo: components/Logo.tsx
+import Image from "next/image";
+import { BUSINESS } from "@/lib/config";
+/**
+ * Logotipo. Se existir o arquivo original (BUSINESS.logoSrc em lib/config.ts), ele é usado.
+ * Caso contrário, mostra o nome da marca em texto — sem redesenhar o logotipo oficial.
+ */
+export function Logo({ className = "" }: { className?: string }) {
+  if (BUSINESS.logoSrc) {
+    return (
+      <Image
+        src={BUSINESS.logoSrc}
+        alt="Gelateria Mix"
+        width={160}
+        height={56}
+        priority
+        className={`h-10 w-auto ${className}`}
+      />
+    );
+  }
+  return (
+    <span
+      className={`inline-flex items-baseline gap-1.5 leading-none ${className}`}
+      aria-label="Gelateria Mix"
+    >
+      <span className="font-display text-[1.55rem] font-semibold tracking-tight text-white">
+        Gelateria
+      </span>
+      <span className="font-display text-lg font-medium italic text-neon">mix</span>
+    </span>
+  );
+}
+Arquivo: components/MenuSection.tsx
+"use client";
+import { AnimatePresence, motion } from "framer-motion";
+import { useState } from "react";
+import { CATEGORIES, productsByCategory } from "@/lib/catalog";
+import type { CategoryId, Product } from "@/lib/catalog";
+import { CategoryNavigation } from "./CategoryNavigation";
+import { ProductCard } from "./ProductCard";
+import { ProductCustomizer } from "./ProductCustomizer";
+import { Reveal } from "./Reveal";
+export function MenuSection() {
+  const [category, setCategory] = useState<CategoryId>("sundaes");
+  const [customizing, setCustomizing] = useState<Product | null>(null);
+  const current = CATEGORIES.find((c) => c.id === category)!;
+  const products = productsByCategory(category);
+  return (
+    <section id="cardapio" className="bg-ink-2 pb-20">
+      <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
+        <Reveal>
+          <p className="eyebrow">Cardápio</p>
+          <h2 className="mt-3 max-w-2xl font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
+            Escolha, personalize e <span className="italic text-neon">peça</span>.
+          </h2>
+          <p className="mt-4 max-w-xl text-cream-dim">
+            Monte quantos itens quiser e continue navegando: o seu pedido fica guardado até você
+            finalizar pelo WhatsApp.
+          </p>
+        </Reveal>
+        <div className="mt-8">
+          <CategoryNavigation active={category} onChange={setCategory} />
+        </div>
+        <div
+          id="painel-cardapio"
+          role="tabpanel"
+          aria-labelledby={`tab-${category}`}
+          className="mt-8"
+        >
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={category}
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
+            >
+              <p className="mb-5 text-sm text-white/60">{current.blurb}</p>
+              <div
+                className={`grid gap-5 ${category === "casquinhas" ? "sm:grid-cols-2 lg:grid-cols-3" : "lg:grid-cols-2"}`}
+              >
+                {products.map((product, i) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    index={i}
+Arquivo (continuação): components/MenuSection.tsx
+                    onCustomize={setCustomizing}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </div>
+      <ProductCustomizer product={customizing} onClose={() => setCustomizing(null)} />
+    </section>
+  );
+}
+Arquivo: components/MobileCartBar.tsx
+"use client";
+import { AnimatePresence, motion } from "framer-motion";
+import { ShoppingBag } from "lucide-react";
+import { useCart } from "@/lib/cart";
+import { brl } from "@/lib/format";
+/** Barra inferior discreta (apenas no celular) com acesso ao pedido. */
+export function MobileCartBar() {
+  const { count, total, openCart, isOpen } = useCart();
+  const visible = count > 0 && !isOpen;
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          initial={{ y: 90, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 90, opacity: 0 }}
+          transition={{ type: "spring", stiffness: 360, damping: 32 }}
+          className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-ink/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-md md:hidden"
+        >
+          <button
+            type="button"
+            onClick={openCart}
+            className="flex min-h-13 w-full items-center justify-between gap-3 rounded-2xl bg-magenta px-4 py-3 text-left font-bold text-white"
+          >
+            <span className="flex items-center gap-2.5">
+              <ShoppingBag className="h-5 w-5" aria-hidden="true" />
+              Ver pedido · {count} {count === 1 ? "item" : "itens"}
+            </span>
+            <span>{brl(total)}</span>
+          </button>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+Arquivo: components/PhotoFrame.tsx
+import Image from "next/image";
+import { ImageIcon } from "lucide-react";
+import type { PhotoSlot } from "@/lib/gallery";
+/** Um espaço de foto reutilizável: mostra a imagem ou um espaço reservado discreto para substituição. */
+export function PhotoFrame({
+  slot,
+  sizes,
+  className = "",
+}: {
+  slot: PhotoSlot;
+  sizes: string;
+  className?: string;
+}) {
+  return (
+    <figure
+      className={`group relative aspect-[4/5] overflow-hidden rounded-2xl border border-line bg-ink-2 ${className}`}
+    >
+      {slot.src ? (
+        <Image
+          src={slot.src}
+          alt={slot.alt}
+          fill
+          sizes={sizes}
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+        />
+      ) : (
+        <div className="flex h-full w-full flex-col items-center justify-center gap-3 border-2 border-dashed border-white/15 p-4 text-center">
+          <ImageIcon className="h-7 w-7 text-white/40" aria-hidden="true" />
+          <p className="text-sm font-bold text-white/70">{slot.label}</p>
+          <p className="text-xs leading-relaxed text-white/50">
+            Foto a adicionar. Substitua pelo arquivo real da loja.
+          </p>
+        </div>
+      )}
+      <figcaption className="sr-only">{slot.label}</figcaption>
+    </figure>
+  );
+}
+Arquivo: components/ProductCard.tsx
+"use client";
+import { motion } from "framer-motion";
+import { Plus } from "lucide-react";
+import type { Product } from "@/lib/catalog";
+import { startingPrice } from "@/lib/catalog";
+import { brl } from "@/lib/format";
+interface ProductCardProps {
+  product: Product;
+  index: number;
+  onCustomize: (product: Product) => void;
+}
+export function ProductCard({ product, index, onCustomize }: ProductCardProps) {
+  const specialCount = product.flavors.filter((f) => (f.surcharge ?? 0) > 0).length;
+  const regularCount = product.flavors.length - specialCount;
+  const specialSurcharge = product.flavors.find((f) => (f.surcharge ?? 0) > 0)?.surcharge ?? 0;
+  const flavorInfo =
+    product.kind === "fixed"
+      ? null
+      : specialCount > 0
+        ? `${regularCount} sabores tradicionais e ${specialCount} especiais (+ ${brl(specialSurcharge)})`
+        : `${product.flavors.length} sabores`;
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 28 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.55, delay: index * 0.07, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ y: -4 }}
+      className="group flex flex-col rounded-3xl border border-line bg-ink-2 p-5 transition-colors hover:border-neon/50 sm:p-6"
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h3 className="font-display text-2xl font-semibold leading-tight">{product.name}</h3>
+          <p className="mt-1.5 text-sm leading-relaxed text-cream-dim">{product.description}</p>
+        </div>
+        {product.kind === "fixed" && (
+          <p className="shrink-0 font-display text-2xl font-semibold text-neon">
+            {brl(product.fixedPrice ?? 0)}
+          </p>
+        )}
+      </div>
+      {product.kind === "sized" && product.sizes && (
+        <dl className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {product.sizes.map((s) => (
+            <div key={s.id} className="rounded-xl border border-line bg-ink px-3 py-2.5">
+              <dt className="text-xs font-semibold text-white/60">{s.label}</dt>
+              <dd className="mt-0.5 text-base font-bold">{brl(s.price)}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+      {product.kind === "fixed" && product.originalNote && (
+        <p className="mt-4 text-sm font-semibold text-white/85">{product.originalNote}</p>
+Arquivo (continuação): components/ProductCard.tsx
+      )}
+      {flavorInfo && <p className="mt-4 text-sm text-white/65">{flavorInfo}</p>}
+      <button
+        type="button"
+        onClick={() => onCustomize(product)}
+        className="btn btn-primary mt-6 w-full"
+        aria-label={`Escolher e adicionar ${product.name} ao pedido${product.kind === "sized" ? `, a partir de ${brl(startingPrice(product))}` : ""}`}
+      >
+        <Plus className="h-5 w-5" aria-hidden="true" />
+        {product.kind === "sized" ? "Escolher e adicionar" : "Adicionar ao pedido"}
+      </button>
+    </motion.article>
+  );
+}
+Arquivo: components/ProductCustomizer.tsx
+"use client";
+import { motion } from "framer-motion";
+import { Minus, Plus, ShoppingBag } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import type { Product } from "@/lib/catalog";
+import { PRICING_RULES } from "@/lib/catalog";
+import { useCart } from "@/lib/cart";
+import { brl, joinNames } from "@/lib/format";
+import { evaluateSelection } from "@/lib/pricing";
+import { FlavorSelector } from "./FlavorSelector";
+import { Sheet } from "./Sheet";
+interface ProductCustomizerProps {
+  product: Product | null;
+  onClose: () => void;
+}
+export function ProductCustomizer({ product, onClose }: ProductCustomizerProps) {
+  return (
+    <Sheet
+      open={product !== null}
+      onClose={onClose}
+      title={product ? `Personalizar ${product.name}` : "Personalizar"}
+      side="bottom"
+    >
+      {product && <CustomizerBody key={product.id} product={product} onClose={onClose} />}
+    </Sheet>
+  );
+}
+function CustomizerBody({ product, onClose }: { product: Product; onClose: () => void }) {
+  const { addItem } = useCart();
+  const [sizeId, setSizeId] = useState<string | undefined>(product.sizes?.[0]?.id);
+  const [slots, setSlots] = useState<string[]>(() =>
+    Array.from({ length: product.flavorCount }, () => ""),
+  );
+  const [quantity, setQuantity] = useState(1);
+  const [justAdded, setJustAdded] = useState(false);
+  const chosenFlavorIds = slots.filter(Boolean);
+  const status = useMemo(
+    () => evaluateSelection({ productId: product.id, sizeId, flavorIds: chosenFlavorIds }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [product.id, sizeId, slots],
+  );
+  useEffect(() => {
+    if (!justAdded) return;
+    const t = window.setTimeout(onClose, 450);
+    return () => window.clearTimeout(t);
+  }, [justAdded, onClose]);
+  const unit = status.ok ? status.unit : null;
+  const total = unit !== null ? unit * quantity : null;
+  const flavorsComplete = chosenFlavorIds.length === product.flavorCount;
+  function handleAdd() {
+    if (!status.ok) return;
+Arquivo (continuação): components/ProductCustomizer.tsx
+    addItem(
+      { productId: product.id, sizeId, flavorIds: chosenFlavorIds },
+      quantity,
+      `${product.name}${status.size ? ` ${status.size.label}` : ""} · ${joinNames(status.flavors.map((f) => f.name))}`,
+    );
+    setJustAdded(true);
+  }
+  const surchargeHint =
+    product.flavors.some((f) => f.surcharge) &&
+    PRICING_RULES.specialSurchargeMode === "once-per-item" &&
+    product.flavorCount === 2
+      ? "O adicional de sabor especial é cobrado uma vez por sundae."
+      : null;
+  return (
+    <>
+      <div className="border-b border-line px-5 pb-4 pt-5 pr-16">
+        <p className="eyebrow">Personalizar</p>
+        <h3 className="mt-1 font-display text-2xl font-semibold">{product.name}</h3>
+        {product.originalNote && (
+          <p className="mt-1 text-sm text-cream-dim">{product.originalNote}</p>
+        )}
+      </div>
+      <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
+        {product.kind === "sized" && product.sizes && (
+          <fieldset>
+            <legend className="mb-2 text-sm font-bold text-white">1. Tamanho</legend>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {product.sizes.map((s) => {
+                const active = s.id === sizeId;
+                return (
+                  <motion.button
+                    key={s.id}
+                    type="button"
+                    whileTap={{ scale: 0.96 }}
+                    onClick={() => setSizeId(s.id)}
+                    aria-pressed={active}
+                    className={`min-h-16 rounded-xl border px-3 py-2 text-left transition-colors ${
+                      active
+                        ? "border-neon bg-magenta/20"
+                        : "border-line bg-ink hover:border-white/40"
+                    }`}
+                  >
+                    <span className="block text-sm font-bold">{s.label}</span>
+                    <span className="block text-sm text-cream-dim">{brl(s.price)}</span>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </fieldset>
+        )}
+        <div>
+          <p className="mb-2 text-sm font-bold text-white">
+            {product.kind === "sized" ? "2. " : "1. "}
+            {product.flavorCount === 1 ? "Sabor" : "Escolha os dois sabores"}
+          </p>
+Arquivo (continuação): components/ProductCustomizer.tsx
+          <FlavorSelector
+            flavors={product.flavors}
+            count={product.flavorCount}
+            allowDuplicates={product.allowDuplicateFlavors}
+            slots={slots}
+            onChange={setSlots}
+          />
+          {product.flavorCount === 2 && (
+            <p className="mt-3 text-xs text-white/60">
+              {product.allowDuplicateFlavors
+                ? "Você pode repetir o mesmo sabor nos dois espaços."
+                : "Os dois sabores precisam ser diferentes."}{" "}
+              {surchargeHint}
+            </p>
+          )}
+        </div>
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-bold">{product.kind === "sized" ? "3. " : "2. "}Quantidade</p>
+          <div className="flex items-center gap-1 rounded-full border border-line bg-ink p-1">
+            <button
+              type="button"
+              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+              disabled={quantity <= 1}
+              aria-label="Diminuir quantidade"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full transition-colors hover:bg-white/10 disabled:opacity-40"
+            >
+              <Minus className="h-4 w-4" aria-hidden="true" />
+            </button>
+            <motion.span
+              key={quantity}
+              initial={{ scale: 1.25, opacity: 0.4 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="w-9 text-center text-lg font-bold tabular-nums"
+              aria-live="polite"
+            >
+              {quantity}
+            </motion.span>
+            <button
+              type="button"
+              onClick={() => setQuantity((q) => Math.min(99, q + 1))}
+              aria-label="Aumentar quantidade"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full transition-colors hover:bg-white/10"
+            >
+              <Plus className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+      </div>
+      <div className="border-t border-line bg-ink-3 px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4">
+        <div className="mb-3 flex items-end justify-between gap-3" aria-live="polite">
+          <div className="min-w-0 text-sm">
+            {status.ok ? (
+              <>
+                <p className="text-cream-dim">
+                  {brl(status.base)}
+                  {status.surcharge > 0 && (
+                    <span className="font-semibold text-neon">
+Arquivo (continuação): components/ProductCustomizer.tsx
+                      {" "}
+                      + {brl(status.surcharge)} sabor especial
+                    </span>
+                  )}
+                  {quantity > 1 && <span> · {quantity} un.</span>}
+                </p>
+              </>
+            ) : (
+              <p className="text-white/70">
+                {flavorsComplete
+                  ? status.reason
+                  : product.flavorCount === 1
+                    ? "Escolha o sabor para continuar."
+                    : "Escolha os dois sabores para continuar."}
+              </p>
+            )}
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-white/60">Total</p>
+            <motion.p
+              key={total ?? "none"}
+              initial={{ y: -6, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              className="font-display text-2xl font-semibold"
+            >
+              {total !== null ? brl(total) : "—"}
+            </motion.p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={handleAdd}
+          disabled={!status.ok || justAdded}
+          className="btn btn-primary w-full"
+        >
+          <ShoppingBag className="h-5 w-5" aria-hidden="true" />
+          {justAdded ? "Adicionado!" : "Adicionar ao pedido"}
+        </button>
+      </div>
+    </>
+  );
+}
+Arquivo: components/ProductGallery.tsx
+import { PRODUCT_PHOTOS } from "@/lib/gallery";
+import { PhotoFrame } from "./PhotoFrame";
+import { Reveal } from "./Reveal";
+/** Exatamente 4 espaços de fotos de produtos. */
+export function ProductGallery() {
+  return (
+    <div>
+      <h3 className="mb-4 font-display text-xl font-semibold">Nossos produtos</h3>
+      <ul className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        {PRODUCT_PHOTOS.map((slot, i) => (
+          <li key={slot.id}>
+            <Reveal delay={i * 0.08}>
+              <PhotoFrame slot={slot} sizes="(min-width: 1024px) 14rem, 45vw" />
+            </Reveal>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+Arquivo: components/Providers.tsx
+"use client";
+import { MotionConfig } from "framer-motion";
+import type { ReactNode } from "react";
+import { CartProvider } from "@/lib/cart";
+import { CartDrawer } from "./CartDrawer";
+import { MobileCartBar } from "./MobileCartBar";
+import { Toast } from "./Toast";
+export function Providers({ children }: { children: ReactNode }) {
+  return (
+    // reducedMotion="user" respeita prefers-reduced-motion em todas as animações do Framer Motion.
+    <MotionConfig reducedMotion="user">
+      <CartProvider>
+        {children}
+        <MobileCartBar />
+        <Toast />
+        <CartDrawer />
+      </CartProvider>
+    </MotionConfig>
+  );
+}
+Arquivo: components/Reveal.tsx
+"use client";
+import { motion } from "framer-motion";
+import type { ReactNode } from "react";
+interface RevealProps {
+  children: ReactNode;
+  delay?: number;
+  y?: number;
+  className?: string;
+}
+/** Revela o conteúdo suavemente quando entra na tela (uma única vez). */
+export function Reveal({ children, delay = 0, y = 24, className }: RevealProps) {
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+Arquivo: components/ReviewsSection.tsx
+import { Star } from "lucide-react";
+import { REVIEWS } from "@/lib/reviews";
+import type { Review } from "@/lib/reviews";
+import { Reveal } from "./Reveal";
+function Stars({ rating }: { rating: number }) {
+  return (
+    <div className="flex gap-0.5" role="img" aria-label={`Nota ${rating} de 5`}>
+      {Array.from({ length: 5 }, (_, i) => (
+        <Star
+          key={i}
+          className={`h-5 w-5 ${i < rating ? "fill-amber-300 text-amber-300" : "text-white/20"}`}
+          aria-hidden="true"
+        />
+      ))}
+    </div>
+  );
+}
+function ReviewCard({ review }: { review: Review }) {
+  if (!review.text) {
+    return (
+      <div className="flex h-full min-h-48 flex-col items-center justify-center rounded-3xl border-2 border-dashed border-white/15 p-6 text-center">
+        <p className="text-sm font-bold text-white/70">Avaliação a adicionar</p>
+        <p className="mt-2 text-xs leading-relaxed text-white/50">
+          Substitua por uma avaliação real de cliente em lib/reviews.ts.
+        </p>
+      </div>
+    );
+  }
+  return (
+    <figure className="flex h-full flex-col rounded-3xl border border-line bg-ink-2 p-6">
+      {review.rating !== null && <Stars rating={review.rating} />}
+      <blockquote className="mt-4 flex-1 font-display text-xl leading-snug">
+        “{review.text}”
+      </blockquote>
+      <figcaption className="mt-5 text-sm text-cream-dim">
+        <span className="font-semibold text-white/85">{review.author ?? "Cliente da Mix"}</span>
+        {review.date && <span> · {review.date}</span>}
+        {review.sourceUrl && (
+          <>
+            {" · "}
+            <a
+              href={review.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-neon underline-offset-4 hover:underline"
+            >
+              ver avaliação
+            </a>
+          </>
+        )}
+      </figcaption>
+    </figure>
+  );
+}
+/** Exatamente 3 espaços de avaliações reais. Nenhuma nota ou nome é inventado. */
+Arquivo (continuação): components/ReviewsSection.tsx
+export function ReviewsSection() {
+  return (
+    <section id="avaliacoes" className="bg-ink py-20">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <Reveal>
+          <p className="eyebrow">Avaliações</p>
+          <h2 className="mt-3 font-display text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
+            O que dizem sobre a <span className="italic text-neon">Mix</span>
+          </h2>
+        </Reveal>
+        <ul className="mt-10 grid gap-5 md:grid-cols-3">
+          {REVIEWS.map((review, i) => (
+            <li key={review.id}>
+              <Reveal delay={i * 0.1} className="h-full">
+                <ReviewCard review={review} />
+              </Reveal>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+Arquivo: components/Sheet.tsx
+"use client";
+import { AnimatePresence, motion } from "framer-motion";
+import { X } from "lucide-react";
+import { useEffect, useRef } from "react";
+import type { ReactNode } from "react";
+interface SheetProps {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  /** "right": gaveta lateral (carrinho). "bottom": painel que sobe (personalização). */
+  side: "right" | "bottom";
+  children: ReactNode;
+}
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+/** Painel modal acessível: Esc fecha, foco fica preso dentro, rolagem do fundo é travada. */
+export function Sheet({ open, onClose, title, side, children }: SheetProps) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const lastFocused = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    if (!open) return;
+    lastFocused.current = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const focusTimer = window.setTimeout(() => {
+      panelRef.current?.querySelector<HTMLElement>("[data-sheet-close]")?.focus();
+    }, 60);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (e.key !== "Tab" || !panelRef.current) return;
+      const items = Array.from(panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE));
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      window.clearTimeout(focusTimer);
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previousOverflow;
+      lastFocused.current?.focus?.();
+Arquivo (continuação): components/Sheet.tsx
+    };
+  }, [open, onClose]);
+  const panelMotion =
+    side === "right"
+      ? { initial: { x: "100%" }, animate: { x: 0 }, exit: { x: "100%" } }
+      : { initial: { y: "100%" }, animate: { y: 0 }, exit: { y: "100%" } };
+  const panelClass =
+    side === "right"
+      ? "ml-auto h-full w-full max-w-md rounded-none border-l border-line sm:rounded-l-3xl"
+      : "mx-auto mt-auto max-h-[92dvh] w-full max-w-2xl rounded-t-3xl border-t border-line sm:my-auto sm:rounded-3xl sm:border";
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          className={`fixed inset-0 z-50 flex ${side === "bottom" ? "sm:p-6" : ""}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <div
+            className="absolute inset-0 bg-black/70 backdrop-blur-[2px]"
+            onClick={onClose}
+            aria-hidden="true"
+          />
+          <motion.div
+            ref={panelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={title}
+            className={`relative flex flex-col overflow-hidden bg-ink-2 shadow-2xl ${panelClass}`}
+            {...panelMotion}
+            transition={{ type: "spring", stiffness: 340, damping: 34 }}
+          >
+            <button
+              type="button"
+              onClick={onClose}
+              data-sheet-close
+              aria-label="Fechar"
+              className="absolute right-3 top-3 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-ink-3 text-white/80 transition-colors hover:text-white"
+            >
+              <X className="h-5 w-5" aria-hidden="true" />
+            </button>
+            {children}
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+Arquivo: components/StoreGallery.tsx
+import { STORE_PHOTOS } from "@/lib/gallery";
+import { PhotoFrame } from "./PhotoFrame";
+import { Reveal } from "./Reveal";
+/** Exatamente 2 espaços de fotos do estabelecimento. */
+export function StoreGallery() {
+  return (
+    <div>
+      <h3 className="mb-4 font-display text-xl font-semibold">O espaço</h3>
+      <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+        {STORE_PHOTOS.map((slot, i) => (
+          <li key={slot.id}>
+            <Reveal delay={i * 0.08}>
+              <PhotoFrame
+                slot={slot}
+                sizes="(min-width: 640px) 30rem, 90vw"
+                className="!aspect-[16/10]"
+              />
+            </Reveal>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+Arquivo: components/Toast.tsx
+"use client";
+import { AnimatePresence, motion } from "framer-motion";
+import { Check } from "lucide-react";
+import { useCart } from "@/lib/cart";
+/** Aviso discreto exibido ao adicionar um item ao pedido. */
+export function Toast() {
+  const { toast, openCart, dismissToast, isOpen } = useCart();
+  const visible = toast !== null && !isOpen;
+  return (
+    <div className="pointer-events-none fixed inset-x-0 bottom-24 z-[45] flex justify-center px-4 md:bottom-8">
+      <AnimatePresence>
+        {visible && toast && (
+          <motion.div
+            key={toast.id}
+            role="status"
+            aria-live="polite"
+            initial={{ opacity: 0, y: 18, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 12 }}
+            transition={{ type: "spring", stiffness: 380, damping: 28 }}
+            className="pointer-events-auto flex max-w-md items-center gap-3 rounded-full border border-neon/40 bg-ink-3 py-2 pl-3 pr-2 shadow-xl"
+          >
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-magenta">
+              <Check className="h-4 w-4" aria-hidden="true" />
+            </span>
+            <span className="min-w-0 truncate text-sm font-semibold">{toast.message}</span>
+            <button
+              type="button"
+              onClick={() => {
+                dismissToast();
+                openCart();
+              }}
+              className="shrink-0 rounded-full bg-white px-3.5 py-2 text-sm font-bold text-ink"
+            >
+              Ver pedido
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+Arquivo: components/Wave.tsx
+/** Ondas de sorvete: faixa decorativa com movimento lento (desligado com prefers-reduced-motion). */
+export function Wave({
+  fill = "#130c10",
+  flip = false,
+  className = "",
+}: {
+  fill?: string;
+  flip?: boolean;
+  className?: string;
+}) {
+  const path =
+    "M0 60 C 120 20 240 20 360 60 S 600 100 720 60 S 960 20 1080 60 S 1320 100 1440 60 V120 H0 Z";
+  return (
+    <div
+      aria-hidden="true"
+      className={`pointer-events-none overflow-hidden leading-[0] ${flip ? "rotate-180" : ""} ${className}`}
+    >
+      <div className="wave-track">
+        <svg viewBox="0 0 1440 120" preserveAspectRatio="none" className="h-16 w-1/2 sm:h-24">
+          <path d={path} fill={fill} />
+        </svg>
+        <svg viewBox="0 0 1440 120" preserveAspectRatio="none" className="h-16 w-1/2 sm:h-24">
+          <path d={path} fill={fill} />
+        </svg>
+      </div>
+    </div>
+  );
+}
+Arquivo: components/WhatsAppCheckout.tsx
+"use client";
+import { MessageCircle } from "lucide-react";
+import { useState } from "react";
+import { useCart } from "@/lib/cart";
+import { brl } from "@/lib/format";
+import { buildOrderMessage, buildWhatsAppUrl, validateCustomer } from "@/lib/whatsapp";
+import type { CustomerData, CustomerErrors } from "@/lib/whatsapp";
+import { CheckoutForm } from "./CheckoutForm";
+/** Formulário + botão "Finalizar pelo WhatsApp". Só abre o WhatsApp com o pedido já preenchido. */
+export function WhatsAppCheckout() {
+  const { lines, total, customer: data, updateCustomer } = useCart();
+  const [errors, setErrors] = useState<CustomerErrors>({});
+  const [opened, setOpened] = useState(false);
+  const [blocked, setBlocked] = useState<string | null>(null);
+  function update(patch: Partial<CustomerData>) {
+    updateCustomer(patch);
+    setErrors((prev) => {
+      const next = { ...prev };
+      if ("name" in patch) delete next.name;
+      if ("address" in patch || "mode" in patch) delete next.address;
+      return next;
+    });
+  }
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setBlocked(null);
+    if (lines.length === 0) {
+      setBlocked("Adicione pelo menos um item ao pedido.");
+      return;
+    }
+    const found = validateCustomer(data);
+    setErrors(found);
+    if (Object.keys(found).length > 0) {
+      const firstId = found.name ? "cliente-nome" : "cliente-endereco";
+      document.getElementById(firstId)?.focus();
+      return;
+    }
+    // Os totais são recalculados a partir do catálogo a cada envio (priceCart via useCart).
+    const message = buildOrderMessage(lines, total, data);
+    const url = buildWhatsAppUrl(message);
+    // O carrinho NÃO é limpo: o cliente pode voltar e ajustar o pedido se precisar.
+    // Obs.: com "noopener" o window.open sempre devolve null, então o vínculo é removido manualmente.
+    const win = window.open(url, "_blank");
+    if (win) {
+      win.opener = null;
+    } else {
+      // Pop-up bloqueado: abre na mesma aba (o pedido continua salvo no navegador).
+      window.location.href = url;
+    }
+    setOpened(true);
+  }
+Arquivo (continuação): components/WhatsAppCheckout.tsx
+  return (
+    <form onSubmit={handleSubmit} noValidate className="space-y-5">
+      <h3 className="font-display text-xl font-semibold">Seus dados</h3>
+      <CheckoutForm data={data} errors={errors} onChange={update} />
+      {blocked && (
+        <p
+          role="alert"
+          className="rounded-xl border border-red-400/40 bg-red-500/10 px-3 py-2 text-sm font-semibold text-red-200"
+        >
+          {blocked}
+        </p>
+      )}
+      <button type="submit" disabled={lines.length === 0} className="btn btn-primary w-full">
+        <MessageCircle className="h-5 w-5" aria-hidden="true" />
+        Finalizar pelo WhatsApp · {brl(total)}
+      </button>
+      <p className="text-xs leading-relaxed text-white/65">
+        Ao tocar no botão, abriremos o WhatsApp da Gelateria Mix com o seu pedido pronto.{" "}
+        <strong className="text-white/90">
+          O pedido só é enviado quando você confirmar e enviar a mensagem no WhatsApp.
+        </strong>{" "}
+        Taxas, prazos e condições de atendimento são combinados por lá.
+      </p>
+      {opened && (
+        <p
+          role="status"
+          className="rounded-xl border border-neon/40 bg-magenta/10 px-3 py-2 text-sm text-white/90"
+        >
+          Abrimos o WhatsApp com a mensagem pronta. Falta apenas você enviar para a loja. Seu pedido
+          continua guardado aqui caso queira ajustar.
+        </p>
+      )}
+    </form>
+  );
+}
+Arquivo: lib/cart.tsx
+"use client";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
+import type { ReactNode } from "react";
+import { makeKey, priceCart, priceItem } from "./pricing";
+import type { CartItem, PricedLine, Selection } from "./pricing";
+import type { CustomerData } from "./whatsapp";
+const STORAGE_KEY = "gelateria-mix-cart-v1";
+const MAX_QTY = 99;
+type Action =
+  | { type: "hydrate"; items: CartItem[] }
+  | { type: "add"; selection: Selection; quantity: number }
+  | { type: "setQty"; key: string; quantity: number }
+  | { type: "remove"; key: string }
+  | { type: "clear" };
+function reducer(state: CartItem[], action: Action): CartItem[] {
+  switch (action.type) {
+    case "hydrate":
+      return action.items;
+    case "add": {
+      const key = makeKey(action.selection);
+      const existing = state.find((i) => i.key === key);
+      if (existing) {
+        return state.map((i) =>
+          i.key === key ? { ...i, quantity: Math.min(MAX_QTY, i.quantity + action.quantity) } : i,
+        );
+      }
+      return [
+        ...state,
+        {
+          key,
+          productId: action.selection.productId,
+          sizeId: action.selection.sizeId,
+          flavorIds: action.selection.flavorIds,
+          quantity: Math.min(MAX_QTY, action.quantity),
+        },
+      ];
+    }
+    case "setQty":
+      return state.map((i) =>
+        i.key === action.key
+          ? { ...i, quantity: Math.max(1, Math.min(MAX_QTY, action.quantity)) }
+          : i,
+      );
+    case "remove":
+      return state.filter((i) => i.key !== action.key);
+    case "clear":
+Arquivo (continuação): lib/cart.tsx
+      return [];
+    default:
+      return state;
+  }
+}
+interface Toast {
+  id: number;
+  message: string;
+}
+const EMPTY_CUSTOMER: CustomerData = {
+  name: "",
+  mode: "retirada",
+  address: "",
+  payment: "",
+  notes: "",
+};
+interface CartContextValue {
+  lines: PricedLine[];
+  /** Dados do cliente ficam só em memória (não vão para o localStorage) e sobrevivem ao fechar o carrinho. */
+  customer: CustomerData;
+  updateCustomer: (patch: Partial<CustomerData>) => void;
+  count: number;
+  total: number;
+  ready: boolean;
+  isOpen: boolean;
+  toast: Toast | null;
+  openCart: () => void;
+  closeCart: () => void;
+  addItem: (selection: Selection, quantity: number, label: string) => void;
+  setQuantity: (key: string, quantity: number) => void;
+  removeItem: (key: string) => void;
+  clearCart: () => void;
+  dismissToast: () => void;
+}
+const CartContext = createContext<CartContextValue | null>(null);
+function loadStored(): CartItem[] {
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    const valid: CartItem[] = [];
+    for (const entry of parsed) {
+      if (!entry || typeof entry !== "object") continue;
+      const e = entry as Partial<CartItem>;
+      if (typeof e.productId !== "string" || !Array.isArray(e.flavorIds)) continue;
+      const candidate: CartItem = {
+        key: typeof e.key === "string" ? e.key : "",
+        productId: e.productId,
+        sizeId: typeof e.sizeId === "string" ? e.sizeId : undefined,
+        flavorIds: e.flavorIds.filter((x): x is string => typeof x === "string"),
+        quantity: typeof e.quantity === "number" ? e.quantity : 1,
+      };
+      // Descarta itens que não existem mais no catálogo; os preços são sempre recalculados.
+Arquivo (continuação): lib/cart.tsx
+      const priced = priceItem(candidate);
+      if (!priced) continue;
+      valid.push({
+        ...candidate,
+        key: makeKey(candidate),
+        quantity: Math.min(MAX_QTY, priced.item.quantity),
+      });
+    }
+    return valid;
+  } catch {
+    return [];
+  }
+}
+export function CartProvider({ children }: { children: ReactNode }) {
+  const [items, dispatch] = useReducer(reducer, []);
+  const [ready, setReady] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [toast, setToast] = useState<Toast | null>(null);
+  const [customer, setCustomer] = useState<CustomerData>(EMPTY_CUSTOMER);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const toastId = useRef(0);
+  useEffect(() => {
+    dispatch({ type: "hydrate", items: loadStored() });
+    setReady(true);
+  }, []);
+  useEffect(() => {
+    if (!ready) return;
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    } catch {
+      // Armazenamento indisponível (modo privado, cota): o carrinho continua funcionando em memória.
+    }
+  }, [items, ready]);
+  useEffect(() => {
+    return () => {
+      if (toastTimer.current) clearTimeout(toastTimer.current);
+    };
+  }, []);
+  const { lines, total, count } = useMemo(() => priceCart(items), [items]);
+  const openCart = useCallback(() => setIsOpen(true), []);
+  const closeCart = useCallback(() => setIsOpen(false), []);
+  const dismissToast = useCallback(() => setToast(null), []);
+  const addItem = useCallback((selection: Selection, quantity: number, label: string) => {
+    dispatch({ type: "add", selection, quantity });
+    toastId.current += 1;
+    setToast({ id: toastId.current, message: label });
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 3200);
+  }, []);
+  const setQuantity = useCallback(
+    (key: string, quantity: number) => dispatch({ type: "setQty", key, quantity }),
+Arquivo (continuação): lib/cart.tsx
+    [],
+  );
+  const removeItem = useCallback((key: string) => dispatch({ type: "remove", key }), []);
+  const clearCart = useCallback(() => dispatch({ type: "clear" }), []);
+  const updateCustomer = useCallback(
+    (patch: Partial<CustomerData>) => setCustomer((c) => ({ ...c, ...patch })),
+    [],
+  );
+  const value = useMemo<CartContextValue>(
+    () => ({
+      lines,
+      customer,
+      updateCustomer,
+      count,
+      total,
+      ready,
+      isOpen,
+      toast,
+      openCart,
+      closeCart,
+      addItem,
+      setQuantity,
+      removeItem,
+      clearCart,
+      dismissToast,
+    }),
+    [
+      lines,
+      customer,
+      updateCustomer,
+      count,
+      total,
+      ready,
+      isOpen,
+      toast,
+      openCart,
+      closeCart,
+      addItem,
+      setQuantity,
+      removeItem,
+      clearCart,
+      dismissToast,
+    ],
+  );
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+}
+export function useCart(): CartContextValue {
+  const ctx = useContext(CartContext);
+  if (!ctx) throw new Error("useCart deve ser usado dentro de <CartProvider>.");
+  return ctx;
+}
+Arquivo: lib/catalog.ts
+// ÚNICA fonte de verdade de produtos, tamanhos, sabores e preços.
+// Todos os valores monetários estão em CENTAVOS (inteiros) para evitar erros de ponto flutuante.
+// Nenhum componente deve ter preço escrito à mão: sempre usar este arquivo + lib/pricing.ts.
+export type CategoryId = "sundaes" | "milkshakes" | "casquinhas";
+export interface Flavor {
+  id: string;
+  name: string;
+  /** Adicional em centavos (ex.: sabores especiais de sundae). */
+  surcharge?: number;
+}
+export interface Size {
+  id: string;
+  label: string;
+  /** Preço base em centavos. */
+  price: number;
+}
+export interface Product {
+  id: string;
+  category: CategoryId;
+  name: string;
+  description: string;
+  /** "sized": preço por tamanho. "fixed": preço único. */
+  kind: "sized" | "fixed";
+  sizes?: Size[];
+  fixedPrice?: number;
+  /** Quantidade de sabores que o cliente precisa escolher. */
+  flavorCount: 1 | 2;
+  flavorLabel: string;
+  flavors: Flavor[];
+  /** Permite escolher o mesmo sabor nos dois espaços (apenas quando flavorCount = 2). */
+  allowDuplicateFlavors: boolean;
+  /** Texto original informado no cardápio (preservado). */
+  originalNote?: string;
+}
+export interface Category {
+  id: CategoryId;
+  label: string;
+  shortLabel: string;
+  blurb: string;
+}
+// ---------------------------------------------------------------------------
+// REGRAS COMERCIAIS CONFIGURÁVEIS
+// ---------------------------------------------------------------------------
+export const PRICING_RULES = {
+  /**
+   * Como cobrar o adicional dos sabores especiais de sundae (R$ 3,00) quando o
+   * produto tem 2 sabores:
+   *  - "once-per-item": cobra o adicional UMA vez por sundae, se houver ao menos um sabor especial.
+   *  - "per-special-flavor": cobra o adicional por cada sabor especial escolhido.
+   * A regra comercial não foi confirmada; o padrão evita cobrança dupla no mesmo produto.
+   */
+  specialSurchargeMode: "once-per-item" as "once-per-item" | "per-special-flavor",
+};
+Arquivo (continuação): lib/catalog.ts
+const SPECIAL_SURCHARGE = 300; // R$ 3,00
+// ---------------------------------------------------------------------------
+// Utilitário local para gerar ids estáveis a partir dos nomes
+// ---------------------------------------------------------------------------
+function slug(text: string): string {
+  return text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+function flavors(names: string[], surcharge?: number): Flavor[] {
+  return names.map((name) => ({ id: slug(name), name, ...(surcharge ? { surcharge } : {}) }));
+}
+function sizes(prices: [number, number, number, number]): Size[] {
+  const labels = [300, 400, 500, 700];
+  return labels.map((ml, i) => ({ id: `${ml}ml`, label: `${ml} ml`, price: prices[i] * 100 }));
+}
+// ---------------------------------------------------------------------------
+// CATEGORIAS
+// ---------------------------------------------------------------------------
+export const CATEGORIES: Category[] = [
+  {
+    id: "sundaes",
+    label: "Sundaes",
+    shortLabel: "Sundaes",
+    blurb: "Tradicional ou com 2 sabores.",
+  },
+  {
+    id: "milkshakes",
+    label: "Milk-shakes",
+    shortLabel: "Milk-shakes",
+    blurb: "40 sabores para escolher.",
+  },
+  {
+    id: "casquinhas",
+    label: "Casquinhas, Cascões e Copinhos",
+    shortLabel: "Casquinhas e cia.",
+    blurb: "Sete opções, do clássico ao trufado.",
+  },
+];
+// ---------------------------------------------------------------------------
+// SABORES
+// ---------------------------------------------------------------------------
+export const SUNDAE_FLAVORS: Flavor[] = [
+  ...flavors([
+    "Baunilha ao Chocolate",
+    "Cookies Branco",
+    "Creme de Avelã",
+    "Creme de Valsa",
+    "Chocolate",
+    "Ferrero Rocher",
+Arquivo (continuação): lib/catalog.ts
+    "Frutas Vermelhas",
+    "Maracujá",
+    "Morango",
+    "Ninho",
+    "Prestígio",
+    "Rafaello",
+    "Trufa",
+  ]),
+  ...flavors(["Nutella Original", "Ovomaltine", "Pistache"], SPECIAL_SURCHARGE),
+];
+export const MILKSHAKE_FLAVORS: Flavor[] = flavors([
+  "Baunilha",
+  "Baunilha ao Chocolate",
+  "Beijinho",
+  "Biscoito",
+  "Bombom Trufado",
+  "Brigadeiro",
+  "Céu Azul",
+  "Cereja",
+  "Chocolate",
+  "Chocolate Suíço",
+  "Choconinho",
+  "Chocobis",
+  "Chocomenta",
+  "Coco Branco",
+  "Coco Queimado",
+  "Creme",
+  "Danoninho",
+  "Ferrero Rocher",
+  "Flocos",
+  "Frutas Vermelhas",
+  "Floresta Negra",
+  "Kinder Ovo",
+  "Laka Flocado",
+  "Laka Trufado",
+  "Leite Condensado",
+  "Leite Ninho",
+  "Limão",
+  "Maracujá",
+  "Menta",
+  "Milho Verde",
+  "Morango",
+  "Ninho Trufado",
+  "Ninho Flocado",
+  "Nutella",
+  "Ovomaltine",
+  "Paçoquinha",
+  "Sensação",
+  "Sonho de Valsa",
+  "Trufa",
+  "Vinho",
+]);
+// ---------------------------------------------------------------------------
+// PRODUTOS
+// ---------------------------------------------------------------------------
+export const PRODUCTS: Product[] = [
+  // --- Sundaes ---
+Arquivo (continuação): lib/catalog.ts
+  {
+    id: "sundae",
+    category: "sundaes",
+    name: "Sundae tradicional",
+    description: "Sundae em quatro tamanhos, com o sabor da sua escolha.",
+    kind: "sized",
+    sizes: sizes([15, 17, 20, 24]),
+    flavorCount: 1,
+    flavorLabel: "Sabor",
+    flavors: SUNDAE_FLAVORS,
+    allowDuplicateFlavors: false,
+  },
+  {
+    id: "sundae-2-sabores",
+    category: "sundaes",
+    name: "Sundae de 2 sabores",
+    description: "Dois sabores no mesmo copo, nos mesmos quatro tamanhos.",
+    kind: "sized",
+    sizes: sizes([18, 20, 23, 27]),
+    flavorCount: 2,
+    flavorLabel: "Sabor",
+    flavors: SUNDAE_FLAVORS,
+    // Cardápio informa "dois sabores distintos ou iguais" — configurável.
+    allowDuplicateFlavors: true,
+  },
+  // --- Milk-shakes ---
+  {
+    id: "milkshake",
+    category: "milkshakes",
+    name: "Milk-shake tradicional",
+    description: "Milk-shake em quatro tamanhos, com 40 sabores para escolher.",
+    kind: "sized",
+    sizes: sizes([14, 16, 19, 22]),
+    flavorCount: 1,
+    flavorLabel: "Sabor",
+    flavors: MILKSHAKE_FLAVORS,
+    allowDuplicateFlavors: false,
+  },
+  {
+    id: "milkshake-2-sabores",
+    category: "milkshakes",
+    name: "Milk-shake de 2 sabores",
+    description: "Escolha exatamente dois sabores entre os 40 disponíveis.",
+    kind: "sized",
+    sizes: sizes([17, 19, 22, 25]),
+    flavorCount: 2,
+    flavorLabel: "Sabor",
+    flavors: MILKSHAKE_FLAVORS,
+    // "Exatamente dois sabores" — por padrão, dois sabores diferentes. Configurável.
+    allowDuplicateFlavors: false,
+  },
+  // --- Casquinhas, Cascões e Copinhos ---
+  {
+    id: "casquinha",
+    category: "casquinhas",
+    name: "Casquinha",
+    description: "Sorvete na casquinha.",
+Arquivo (continuação): lib/catalog.ts
+    kind: "fixed",
+    fixedPrice: 600,
+    flavorCount: 1,
+    flavorLabel: "Sabor",
+    flavors: flavors(["Chocolate", "Baunilha", "Misto"]),
+    allowDuplicateFlavors: false,
+    originalNote: "Chocolate, baunilha ou misto",
+  },
+  {
+    id: "cascao",
+    category: "casquinhas",
+    name: "Cascão",
+    description: "Sorvete no cascão.",
+    kind: "fixed",
+    fixedPrice: 800,
+    flavorCount: 1,
+    flavorLabel: "Sabor",
+    flavors: flavors(["Chocolate", "Baunilha", "Misto"]),
+    allowDuplicateFlavors: false,
+    originalNote: "Chocolate, baunilha ou misto",
+  },
+  {
+    id: "copinho",
+    category: "casquinhas",
+    name: "Copinho",
+    description: "Sorvete no copinho.",
+    kind: "fixed",
+    fixedPrice: 1000,
+    flavorCount: 1,
+    flavorLabel: "Sabor",
+    flavors: flavors(["Chocolate", "Baunilha", "Misto"]),
+    allowDuplicateFlavors: false,
+    originalNote: "Chocolate, baunilha ou misto",
+  },
+  {
+    id: "casquinha-trufada",
+    category: "casquinhas",
+    name: "Casquinha Trufada",
+    description: "Casquinha trufada.",
+    kind: "fixed",
+    fixedPrice: 1000,
+    flavorCount: 1,
+    flavorLabel: "Sabor",
+    flavors: flavors(["Nutella", "Chocolate", "Pistache"]),
+    allowDuplicateFlavors: false,
+    originalNote: "Nutella, chocolate ou pistache",
+  },
+  {
+    id: "cascao-trufado",
+    category: "casquinhas",
+    name: "Cascão Trufado",
+    description: "Cascão trufado.",
+    kind: "fixed",
+    fixedPrice: 1300,
+    flavorCount: 1,
+    flavorLabel: "Sabor",
+    flavors: flavors(["Nutella", "Chocolate", "Pistache"]),
+    allowDuplicateFlavors: false,
+    originalNote: "Nutella, chocolate ou pistache",
+Arquivo (continuação): lib/catalog.ts
+  },
+  {
+    id: "casquinha-de-acai",
+    category: "casquinhas",
+    name: "Casquinha de Açaí",
+    description: "Casquinha de açaí.",
+    kind: "fixed",
+    fixedPrice: 1200,
+    flavorCount: 1,
+    flavorLabel: "Sabor",
+    flavors: flavors(["Nutella", "Chocolate", "Pistache"]),
+    allowDuplicateFlavors: false,
+    originalNote: "Trufado Nutella, chocolate ou pistache",
+  },
+  {
+    id: "cascao-de-acai",
+    category: "casquinhas",
+    name: "Cascão de Açaí",
+    description: "Cascão de açaí.",
+    kind: "fixed",
+    fixedPrice: 1500,
+    flavorCount: 1,
+    flavorLabel: "Sabor",
+    flavors: flavors(["Nutella", "Chocolate", "Pistache"]),
+    allowDuplicateFlavors: false,
+    originalNote: "Trufado Nutella, chocolate ou pistache",
+  },
+];
+export function getProduct(id: string): Product | undefined {
+  return PRODUCTS.find((p) => p.id === id);
+}
+export function productsByCategory(category: CategoryId): Product[] {
+  return PRODUCTS.filter((p) => p.category === category);
+}
+/** Menor preço base do produto (usado em "a partir de"). */
+export function startingPrice(product: Product): number {
+  if (product.kind === "fixed") return product.fixedPrice ?? 0;
+  return Math.min(...(product.sizes ?? []).map((s) => s.price));
+}
+Arquivo: lib/config.ts
+// Dados oficiais da empresa. Altere aqui — o site inteiro usa estas constantes.
+export const BUSINESS = {
+  name: "Gelateria Mix",
+  tagline: "Gelateria, sorvetes, milk-shakes, sundae e sobremesas geladas",
+  city: "Arcos",
+  state: "MG",
+  openingDate: "13 de junho de 2026",
+  address: {
+    street: "Praça Floriano Peixoto, 177",
+    neighborhood: "Centro",
+    city: "Arcos",
+    state: "MG",
+    postalCode: "35588-000",
+    reference: "Praça da Matriz",
+  },
+  whatsappDisplay: "(37) 99834-1183",
+  whatsappNumber: "5537998341183",
+  instagramUrl: "https://www.instagram.com/mix.gelateria/",
+  instagramHandle: "@mix.gelateria",
+  // Se tiver o arquivo do logotipo original, coloque em /public/logo.png
+  // e informe aqui: logoSrc: "/logo.png". Enquanto for null, usa o texto da marca.
+  logoSrc: null as string | null,
+} as const;
+export const FULL_ADDRESS = `${BUSINESS.address.street}, ${BUSINESS.address.neighborhood}, ${BUSINESS.address.city}, ${BUSINESS.address.state}, CEP ${BUSINESS.address.postalCode}`;
+export const MAPS_QUERY = "Praça Floriano Peixoto, 177, Centro, Arcos, MG, 35588-000";
+export const MAPS_DIRECTIONS_URL = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(MAPS_QUERY)}`;
+export const MAPS_EMBED_URL = `https://www.google.com/maps?q=${encodeURIComponent(MAPS_QUERY)}&output=embed`;
+export const WHATSAPP_BASE_URL = `https://wa.me/${BUSINESS.whatsappNumber}`;
+export interface DayHours {
+  /** 0 = domingo ... 6 = sábado (igual a Date.getDay) */
+  day: number;
+  label: string;
+  /** Texto exibido */
+  text: string;
+  /** Formato HH:MM para dados estruturados */
+  opens: string;
+  closes: string;
+  schemaDay: string;
+}
+export const BUSINESS_HOURS: DayHours[] = [
+  {
+    day: 1,
+    label: "Segunda-feira",
+    text: "13h às 19h30",
+    opens: "13:00",
+    closes: "19:30",
+    schemaDay: "Monday",
+  },
+  {
+    day: 2,
+    label: "Terça-feira",
+Arquivo (continuação): lib/config.ts
+    text: "13h às 20h",
+    opens: "13:00",
+    closes: "20:00",
+    schemaDay: "Tuesday",
+  },
+  {
+    day: 3,
+    label: "Quarta-feira",
+    text: "13h às 20h",
+    opens: "13:00",
+    closes: "20:00",
+    schemaDay: "Wednesday",
+  },
+  {
+    day: 4,
+    label: "Quinta-feira",
+    text: "13h às 20h",
+    opens: "13:00",
+    closes: "20:00",
+    schemaDay: "Thursday",
+  },
+  {
+    day: 5,
+    label: "Sexta-feira",
+    text: "13h às 20h",
+    opens: "13:00",
+    closes: "20:00",
+    schemaDay: "Friday",
+  },
+  {
+    day: 6,
+    label: "Sábado",
+    text: "13h às 21h",
+    opens: "13:00",
+    closes: "21:00",
+    schemaDay: "Saturday",
+  },
+  {
+    day: 0,
+    label: "Domingo",
+    text: "13h às 22h",
+    opens: "13:00",
+    closes: "22:00",
+    schemaDay: "Sunday",
+  },
+];
+export const NAV_LINKS = [
+  { href: "#inicio", label: "Início" },
+  { href: "#cardapio", label: "Cardápio" },
+  { href: "#sobre", label: "Sobre" },
+  { href: "#galeria", label: "Galeria" },
+  { href: "#localizacao", label: "Localização" },
+] as const;
+Arquivo: lib/format.ts
+const brlFormatter = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+/** Formata um valor em centavos como moeda brasileira. */
+export function brl(cents: number): string {
+  return brlFormatter.format(cents / 100);
+}
+/** Junta nomes em português: "A", "A e B", "A, B e C". */
+export function joinNames(names: string[]): string {
+  if (names.length <= 1) return names.join("");
+  return `${names.slice(0, -1).join(", ")} e ${names[names.length - 1]}`;
+}
+Arquivo: lib/gallery.ts
+// Galeria com EXATAMENTE 6 espaços: 4 de produtos + 2 do estabelecimento.
+// Para trocar uma foto, substitua o arquivo em /public/images (mesmo nome)
+// ou altere o `src` abaixo. Use `src: null` para mostrar o espaço reservado.
+export interface PhotoSlot {
+  id: string;
+  label: string;
+  src: string | null;
+  alt: string;
+}
+export const PRODUCT_PHOTOS: [PhotoSlot, PhotoSlot, PhotoSlot, PhotoSlot] = [
+  {
+    id: "produto-01",
+    label: "Produto 01",
+    src: "/images/produto-01.jpg",
+    alt: "Copo da Gelateria Mix com sobremesa de chocolate, em frente ao letreiro neon da loja",
+  },
+  {
+    id: "produto-02",
+    label: "Produto 02",
+    src: "/images/produto-02.jpg",
+    alt: "Copo da Gelateria Mix com camadas roxas e cobertura de morangos frescos",
+  },
+  {
+    id: "produto-03",
+    label: "Produto 03",
+    src: "/images/produto-03.jpg",
+    alt: "Sorvete de massa misto servido em casquinha na máquina da Gelateria Mix",
+  },
+  {
+    id: "produto-04",
+    label: "Produto 04",
+    src: "/images/produto-04.jpg",
+    alt: "Copo da Gelateria Mix com bebida gelada amarela e topo cremoso",
+  },
+];
+export const STORE_PHOTOS: [PhotoSlot, PhotoSlot] = [
+  {
+    id: "estabelecimento-01",
+    label: "Estabelecimento 01",
+    src: null,
+    alt: "Foto do estabelecimento da Gelateria Mix",
+  },
+  {
+    id: "estabelecimento-02",
+    label: "Estabelecimento 02",
+    src: null,
+    alt: "Foto do estabelecimento da Gelateria Mix",
+  },
+];
+/** Foto usada no Hero (reaproveita uma das fotos reais de produto, sem ocupar slot extra). */
+export const HERO_PHOTO = PRODUCT_PHOTOS[0];
+Arquivo: lib/pricing.ts
+import { PRICING_RULES, getProduct } from "./catalog";
+import type { Flavor, Product, Size } from "./catalog";
+/** Item guardado no carrinho: apenas ids e quantidade. O preço nunca é guardado. */
+export interface CartItem {
+  /** Chave da linha (produto + tamanho + sabores). */
+  key: string;
+  productId: string;
+  sizeId?: string;
+  flavorIds: string[];
+  quantity: number;
+}
+export interface PricedLine {
+  item: CartItem;
+  product: Product;
+  size?: Size;
+  flavors: Flavor[];
+  base: number;
+  surcharge: number;
+  unit: number;
+  subtotal: number;
+}
+export interface Selection {
+  productId: string;
+  sizeId?: string;
+  flavorIds: string[];
+}
+export type SelectionStatus =
+  | {
+      ok: true;
+      product: Product;
+      size?: Size;
+      flavors: Flavor[];
+      base: number;
+      surcharge: number;
+      unit: number;
+    }
+  | { ok: false; reason: string };
+/** Valida uma seleção e calcula o preço unitário a partir do catálogo. */
+export function evaluateSelection(sel: Selection): SelectionStatus {
+  const product = getProduct(sel.productId);
+  if (!product) return { ok: false, reason: "Produto não encontrado." };
+  let size: Size | undefined;
+  let base: number;
+  if (product.kind === "sized") {
+    size = product.sizes?.find((s) => s.id === sel.sizeId);
+    if (!size) return { ok: false, reason: "Escolha o tamanho." };
+    base = size.price;
+  } else {
+    base = product.fixedPrice ?? 0;
+  }
+  if (sel.flavorIds.length !== product.flavorCount) {
+    return {
+Arquivo (continuação): lib/pricing.ts
+      ok: false,
+      reason: product.flavorCount === 1 ? "Escolha o sabor." : "Escolha os dois sabores.",
+    };
+  }
+  const flavors: Flavor[] = [];
+  for (const id of sel.flavorIds) {
+    const f = product.flavors.find((x) => x.id === id);
+    if (!f) return { ok: false, reason: "Sabor inválido." };
+    flavors.push(f);
+  }
+  if (
+    product.flavorCount === 2 &&
+    !product.allowDuplicateFlavors &&
+    sel.flavorIds[0] === sel.flavorIds[1]
+  ) {
+    return { ok: false, reason: "Escolha dois sabores diferentes." };
+  }
+  const specials = flavors.filter((f) => (f.surcharge ?? 0) > 0);
+  let surcharge = 0;
+  if (specials.length > 0) {
+    surcharge =
+      PRICING_RULES.specialSurchargeMode === "per-special-flavor"
+        ? specials.reduce((sum, f) => sum + (f.surcharge ?? 0), 0)
+        : Math.max(...specials.map((f) => f.surcharge ?? 0));
+  }
+  return { ok: true, product, size, flavors, base, surcharge, unit: base + surcharge };
+}
+export function makeKey(sel: Selection): string {
+  const product = getProduct(sel.productId);
+  const flavorPart =
+    product && product.flavorCount === 2
+      ? [...sel.flavorIds].sort().join("+")
+      : sel.flavorIds.join("+");
+  return [sel.productId, sel.sizeId ?? "-", flavorPart].join("|");
+}
+/** Converte um item do carrinho em linha com preços. Retorna null se o item for inválido. */
+export function priceItem(item: CartItem): PricedLine | null {
+  const res = evaluateSelection(item);
+  if (!res.ok) return null;
+  const quantity = Math.max(1, Math.floor(item.quantity));
+  return {
+    item: { ...item, quantity },
+    product: res.product,
+    size: res.size,
+    flavors: res.flavors,
+    base: res.base,
+    surcharge: res.surcharge,
+    unit: res.unit,
+    subtotal: res.unit * quantity,
+  };
+}
+export function priceCart(items: CartItem[]): {
+Arquivo (continuação): lib/pricing.ts
+  lines: PricedLine[];
+  total: number;
+  count: number;
+} {
+  const lines = items.map(priceItem).filter((l): l is PricedLine => l !== null);
+  return {
+    lines,
+    total: lines.reduce((sum, l) => sum + l.subtotal, 0),
+    count: lines.reduce((sum, l) => sum + l.item.quantity, 0),
+  };
+}
+Arquivo: lib/reviews.ts
+// Exatamente 3 espaços de avaliação. Os textos abaixo foram transcritos dos prints
+// de avaliações reais enviados pela loja. Não há nome do avaliador nos prints, então
+// nenhum nome é exibido. Para completar, preencha `author`, `date` e `sourceUrl`.
+//
+// Para um espaço ainda vazio, deixe `text: null` — o site exibirá "Avaliação a adicionar".
+export interface Review {
+  id: string;
+  author: string | null;
+  /** 1 a 5. Use null quando a nota não for conhecida (nenhuma estrela será exibida). */
+  rating: number | null;
+  text: string | null;
+  date: string | null;
+  sourceUrl: string | null;
+}
+export const REVIEWS: [Review, Review, Review] = [
+  {
+    id: "avaliacao-1",
+    author: null,
+    rating: 5,
+    text: "Opções variadas de sorvetes, sundae e Milk Shake, todos deliciosos.",
+    date: null,
+    sourceUrl: null,
+  },
+  {
+    id: "avaliacao-2",
+    author: null,
+    rating: 5,
+    text: "O melhor da cidade, não troco de jeito nenhum \u{1F60D}\u{1F497}",
+    date: null,
+    sourceUrl: null,
+  },
+  {
+    id: "avaliacao-3",
+    author: null,
+    rating: 5,
+    text: "Ambiente agradável, entrega rápida e preço justo!",
+    date: null,
+    sourceUrl: null,
+  },
+];
+Arquivo: lib/whatsapp.ts
+import { BUSINESS, WHATSAPP_BASE_URL } from "./config";
+import { brl, joinNames } from "./format";
+import type { PricedLine } from "./pricing";
+export type OrderMode = "retirada" | "entrega";
+export interface CustomerData {
+  name: string;
+  mode: OrderMode;
+  address: string;
+  payment: string;
+  notes: string;
+}
+export interface CustomerErrors {
+  name?: string;
+  address?: string;
+}
+export function validateCustomer(data: CustomerData): CustomerErrors {
+  const errors: CustomerErrors = {};
+  if (data.name.trim().length < 2) errors.name = "Informe seu nome.";
+  if (data.mode === "entrega" && data.address.trim().length < 8) {
+    errors.address = "Informe o endereço completo para entrega.";
+  }
+  return errors;
+}
+export function buildOrderMessage(
+  lines: PricedLine[],
+  total: number,
+  customer: CustomerData,
+): string {
+  const out: string[] = [];
+  out.push(`Olá! Gostaria de fazer um pedido na ${BUSINESS.name}.`);
+  out.push("");
+  out.push("*MEU PEDIDO*");
+  out.push("");
+  lines.forEach((line, i) => {
+    out.push(`${i + 1}. ${line.product.name}`);
+    if (line.size) out.push(`   - Tamanho: ${line.size.label}`);
+    const label = line.flavors.length > 1 ? "Sabores" : "Sabor";
+    out.push(`   - ${label}: ${joinNames(line.flavors.map((f) => f.name))}`);
+    if (line.surcharge > 0) out.push(`   - Adicional de sabor especial: ${brl(line.surcharge)}`);
+    out.push(`   - Quantidade: ${line.item.quantity}`);
+    out.push(`   - Valor unitário: ${brl(line.unit)}`);
+    out.push(`   - Subtotal: ${brl(line.subtotal)}`);
+    out.push("");
+  });
+  out.push(`*Total dos produtos: ${brl(total)}*`);
+  out.push("");
+  out.push("*DADOS DO CLIENTE*");
+  out.push("");
+  out.push(`Nome: ${customer.name.trim()}`);
+  out.push(
+    `Modalidade: ${customer.mode === "entrega" ? "Entrega" : "Retirada no estabelecimento"}`,
+  );
+Arquivo (continuação): lib/whatsapp.ts
+  if (customer.mode === "entrega" && customer.address.trim()) {
+    out.push(`Endereço: ${customer.address.trim()}`);
+  }
+  if (customer.payment.trim()) out.push(`Pagamento: ${customer.payment.trim()}`);
+  if (customer.notes.trim()) out.push(`Observações: ${customer.notes.trim()}`);
+  out.push("");
+  out.push("Olá, aguardo a confirmação do pedido e das condições de atendimento. Obrigado!");
+  return out.join("\n");
+}
+export function buildWhatsAppUrl(message: string): string {
+  return `${WHATSAPP_BASE_URL}?text=${encodeURIComponent(message)}`;
+}
+/** Link simples para abrir conversa sem mensagem de pedido. */
+export function buildContactUrl(text?: string): string {
+  return text ? buildWhatsAppUrl(text) : WHATSAPP_BASE_URL;
+}
+Arquivo: scripts/check-catalog.ts
+// Verificação automática do catálogo, preços e mensagem do WhatsApp.
+// Rode com: npm run check
+import {
+  CATEGORIES,
+  MILKSHAKE_FLAVORS,
+  PRODUCTS,
+  SUNDAE_FLAVORS,
+  getProduct,
+} from "../lib/catalog";
+import { REVIEWS } from "../lib/reviews";
+import { PRODUCT_PHOTOS, STORE_PHOTOS } from "../lib/gallery";
+import { evaluateSelection, priceCart } from "../lib/pricing";
+import type { CartItem } from "../lib/pricing";
+import { buildOrderMessage, buildWhatsAppUrl, validateCustomer } from "../lib/whatsapp";
+import { brl } from "../lib/format";
+let failures = 0;
+function assert(cond: boolean, msg: string) {
+  if (!cond) {
+    failures += 1;
+    console.error(`  FALHOU: ${msg}`);
+  } else {
+    console.log(`  ok: ${msg}`);
+  }
+}
+function price(productId: string, sizeId: string | undefined, flavorIds: string[]) {
+  const r = evaluateSelection({ productId, sizeId, flavorIds });
+  return r.ok ? r.unit : null;
+}
+console.log("Estrutura");
+assert(CATEGORIES.length === 3, "3 categorias");
+assert(PRODUCTS.length === 11, "11 produtos (4 sundae/milk-shake + 7 casquinhas e cia.)");
+assert(MILKSHAKE_FLAVORS.length === 40, "40 sabores de milk-shake");
+assert(SUNDAE_FLAVORS.length === 16, "16 sabores de sundae (13 + 3 especiais)");
+assert(
+  SUNDAE_FLAVORS.filter((f) => f.surcharge === 300).length === 3,
+  "3 sabores especiais com R$ 3,00",
+);
+assert(
+  PRODUCTS.filter((p) => p.category === "casquinhas").length === 7,
+  "7 opções de casquinha/cascão/copinho",
+);
+assert(
+  PRODUCT_PHOTOS.length === 4 && STORE_PHOTOS.length === 2,
+  "galeria: 4 produtos + 2 estabelecimento",
+);
+assert(REVIEWS.length === 3, "3 espaços de avaliação");
+assert(new Set(PRODUCTS.map((p) => p.id)).size === PRODUCTS.length, "ids de produto únicos");
+console.log("Preços por tamanho");
+const table: Record<string, number[]> = {
+  sundae: [1500, 1700, 2000, 2400],
+  "sundae-2-sabores": [1800, 2000, 2300, 2700],
+  milkshake: [1400, 1600, 1900, 2200],
+  "milkshake-2-sabores": [1700, 1900, 2200, 2500],
+};
+Arquivo (continuação): scripts/check-catalog.ts
+for (const [id, expected] of Object.entries(table)) {
+  const p = getProduct(id)!;
+  const got = p.sizes!.map((s) => s.price);
+  assert(
+    JSON.stringify(got) === JSON.stringify(expected),
+    `${p.name}: ${got.map(brl).join(" / ")}`,
+  );
+}
+const fixed: Record<string, number> = {
+  casquinha: 600,
+  cascao: 800,
+  copinho: 1000,
+  "casquinha-trufada": 1000,
+  "cascao-trufado": 1300,
+  "casquinha-de-acai": 1200,
+  "cascao-de-acai": 1500,
+};
+for (const [id, expected] of Object.entries(fixed)) {
+  const p = getProduct(id)!;
+  assert(p.fixedPrice === expected, `${p.name}: ${brl(p.fixedPrice!)}`);
+}
+console.log("Regras de cálculo");
+assert(price("sundae", "400ml", ["chocolate"]) === 1700, "Sundae 400 ml Chocolate = R$ 17,00");
+assert(
+  price("sundae", "400ml", ["ovomaltine"]) === 2000,
+  "Sundae 400 ml Ovomaltine = R$ 20,00 (17 + 3)",
+);
+assert(
+  price("sundae-2-sabores", "400ml", ["chocolate", "morango"]) === 2000,
+  "Sundae 2 sabores 400 ml = R$ 20,00",
+);
+assert(
+  price("sundae-2-sabores", "400ml", ["chocolate", "pistache"]) === 2300,
+  "Com 1 especial = 20 + 3",
+);
+assert(
+  price("sundae-2-sabores", "400ml", ["nutella-original", "pistache"]) === 2300,
+  "2 especiais: adicional cobrado uma vez por item (regra padrão)",
+);
+assert(
+  price("sundae-2-sabores", "400ml", ["chocolate", "chocolate"]) === 2000,
+  "Sundae permite 2 sabores iguais",
+);
+assert(
+  price("milkshake-2-sabores", "300ml", ["chocolate", "chocolate"]) === null,
+  "Milk-shake 2 sabores exige sabores diferentes",
+);
+assert(
+  price("milkshake", "500ml", ["ovomaltine"]) === 1900,
+  "Milk-shake 500 ml Ovomaltine = R$ 19,00 (sem adicional)",
+);
+assert(price("milkshake", undefined, ["ovomaltine"]) === null, "Sem tamanho é inválido");
+assert(price("milkshake", "500ml", []) === null, "Sem sabor é inválido");
+assert(price("cascao-de-acai", undefined, ["nutella"]) === 1500, "Cascão de Açaí = R$ 15,00");
+console.log("Carrinho e mensagem do WhatsApp");
+const items: CartItem[] = [
+Arquivo (continuação): scripts/check-catalog.ts
+  {
+    key: "a",
+    productId: "sundae-2-sabores",
+    sizeId: "400ml",
+    flavorIds: ["chocolate", "morango"],
+    quantity: 2,
+  },
+  { key: "b", productId: "milkshake", sizeId: "500ml", flavorIds: ["ovomaltine"], quantity: 1 },
+];
+const cart = priceCart(items);
+assert(cart.total === 5900, `Total = ${brl(cart.total)} (esperado R$ 59,00)`);
+assert(cart.count === 3, "3 unidades no carrinho");
+const message = buildOrderMessage(cart.lines, cart.total, {
+  name: "Maria",
+  mode: "entrega",
+  address: "Rua das Flores, 100, Centro",
+  payment: "Pix",
+  notes: "",
+});
+console.log("\n" + message + "\n");
+assert(message.includes("1. Sundae de 2 sabores"), "mensagem lista o sundae de 2 sabores");
+assert(message.includes("Sabores: Chocolate e Morango"), "mensagem lista os dois sabores");
+assert(
+  message.includes("Subtotal: ") && message.includes("Total dos produtos:"),
+  "mensagem traz subtotal e total",
+);
+assert(!message.includes("Observações"), "observações vazias não aparecem");
+const url = buildWhatsAppUrl(message);
+assert(url.startsWith("https://wa.me/5537998341183?text="), "URL usa o número oficial");
+assert(
+  decodeURIComponent(url.split("?text=")[1]) === message,
+  "mensagem codificada com encodeURIComponent",
+);
+assert(
+  Object.keys(validateCustomer({ name: "", mode: "retirada", address: "", payment: "", notes: "" }))
+    .length === 1,
+  "nome é obrigatório",
+);
+assert(
+  "address" in
+    validateCustomer({ name: "Ana", mode: "entrega", address: "", payment: "", notes: "" }),
+  "endereço é obrigatório na entrega",
+);
+if (failures > 0) {
+  console.error(`\n${failures} verificação(ões) falharam.`);
+  process.exit(1);
+}
+console.log("\nTodas as verificações passaram.");
